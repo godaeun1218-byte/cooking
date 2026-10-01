@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=block" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    position: relative;
+    font-family: "Jua", "Malgun Gothic", sans-serif;
+    background: linear-gradient(120deg, #ff4d8d 0%, #ff8a3d 22%, #ffd23f 42%, #3ddc97 62%, #3bb6ff 80%, #8b5cff 100%);
+    color: #2b2350;
+  }
+  /* 색종이 꽃가루 */
+  .confetti span { position: absolute; display: block; }
+  .dot { border-radius: 50%; }
+  .bar { border-radius: 4px; }
+
+  /* 가운데 흰 카드 */
+  .card {
+    position: absolute;
+    left: 44px;
+    top: 44px;
+    width: 1112px;
+    height: 542px;
+    background: #fffdf7;
+    border: 5px solid #2b2350;
+    border-radius: 44px;
+    box-shadow: 0 12px 0 #2b2350;
+  }
+  .text {
+    position: absolute;
+    left: 104px;
+    top: 98px;
+    width: 640px;
+  }
+  .kicker {
+    display: inline-block;
+    background: #2b2350;
+    color: #fff;
+    font-size: 25px;
+    padding: 7px 20px 5px;
+    border-radius: 999px;
+  }
+  h1 {
+    margin-top: 18px;
+    font-size: 84px;
+    line-height: 1.1;
+    font-weight: 400;
+    letter-spacing: -1px;
+  }
+  h1 .rainbow {
+    background: linear-gradient(90deg, #ff4d8d, #ff8a3d, #f5b800, #2fc988, #3bb6ff, #8b5cff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .tagline {
+    margin-top: 18px;
+    font-size: 33px;
+    line-height: 1.38;
+    color: #4a4170;
+  }
+  .tagline b { color: #ff4d8d; font-weight: 400; }
+  .chips {
+    position: absolute;
+    left: 104px;
+    bottom: 100px;
+    display: flex;
+    gap: 12px;
+  }
+  .chip {
+    font-size: 25px;
+    padding: 9px 20px 7px;
+    border-radius: 999px;
+    border: 4px solid #2b2350;
+    white-space: nowrap;
+    box-shadow: 0 5px 0 #2b2350;
+  }
+  .c1 { background: #ffd23f; }
+  .c2 { background: #ff9ec4; }
+  .c3 { background: #8fe3ff; }
+
+  .stage {
+    position: absolute;
+    right: 92px;
+    top: 66px;
+    width: 400px;
+    height: 500px;
+  }
+  .halo {
+    position: absolute;
+    left: 28px;
+    top: 90px;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: conic-gradient(#ffd23f, #ff8a3d, #ff4d8d, #8b5cff, #3bb6ff, #3ddc97, #ffd23f);
+    opacity: 0.35;
+  }
+  .mascot { position: absolute; left: 10px; top: 54px; width: 384px; height: 432px; }
+  .mascot svg { width: 100%; height: 100%; }
+  .name {
+    position: absolute;
+    left: 262px;
+    top: 432px;
+    background: #ff4d8d;
+    color: #fff;
+    font-size: 26px;
+    padding: 5px 22px 3px;
+    border-radius: 999px;
+    border: 4px solid #2b2350;
+    transform: rotate(-4deg);
+  }
+  .bubble {
+    position: absolute;
+    right: 300px;
+    top: 0;
+    background: #fff;
+    border: 4px solid #2b2350;
+    border-radius: 28px;
+    padding: 12px 24px 10px;
+    font-size: 30px;
+    white-space: nowrap;
+    box-shadow: 0 6px 0 #2b2350;
+  }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    right: 30px;
+    bottom: -20px;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-right: 4px solid #2b2350;
+    border-bottom: 4px solid #2b2350;
+    transform: rotate(45deg);
+  }
+  .food { position: absolute; font-size: 44px; }
+</style>
+</head>
+<body>
+  <div class="confetti">
+    <span class="dot" style="left:18px;top:14px;width:18px;height:18px;background:#fff"></span>
+    <span class="bar" style="left:300px;top:14px;width:30px;height:10px;background:#fff;transform:rotate(20deg)"></span>
+    <span class="dot" style="left:610px;top:10px;width:14px;height:14px;background:#2b2350"></span>
+    <span class="bar" style="left:880px;top:16px;width:28px;height:9px;background:#fff;transform:rotate(-25deg)"></span>
+    <span class="dot" style="left:1166px;top:120px;width:16px;height:16px;background:#fff"></span>
+    <span class="bar" style="left:1160px;top:420px;width:26px;height:9px;background:#2b2350;transform:rotate(60deg)"></span>
+    <span class="dot" style="left:14px;top:300px;width:14px;height:14px;background:#2b2350"></span>
+    <span class="bar" style="left:10px;top:520px;width:26px;height:9px;background:#fff;transform:rotate(-40deg)"></span>
+    <span class="dot" style="left:420px;top:604px;width:16px;height:16px;background:#fff"></span>
+    <span class="bar" style="left:760px;top:606px;width:30px;height:10px;background:#2b2350;transform:rotate(15deg)"></span>
+  </div>
+
+  <div class="card"></div>
+
+  <div class="text">
+    <span class="kicker">🍳 가정과 방과후 조리실습 도우미</span>
+    <h1>방과후 조리실<br><span class="rainbow">냉장고 요정</span></h1>
+    <p class="tagline">남은 재료로 <b>냉털</b> 완료!<br>오늘 실습 메뉴는 냉요가 골라 줄게</p>
+  </div>
+
+  <div class="chips">
+    <span class="chip c1">🍳 냉털 메뉴 추천</span>
+    <span class="chip c2">⏰ 소비기한 알림</span>
+    <span class="chip c3">📖 레시피 33개</span>
+  </div>
+
+  <div class="stage">
+    <div class="halo"></div>
+    <div class="mascot"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" width="320" height="360">
+  <!-- 냉요: 냉장고 요정. 활짝 웃는 알록달록 꼬마 냉장고 요리사 -->
+  <defs>
+    <linearGradient id="nyBody" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ff0d0"/>
+      <stop offset="1" stop-color="#4fd6c0"/>
+    </linearGradient>
+    <linearGradient id="nyWingL" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffb3e6"/>
+      <stop offset="0.5" stop-color="#c9b8ff"/>
+      <stop offset="1" stop-color="#9fdcff"/>
+    </linearGradient>
+    <linearGradient id="nyWingR" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe27a"/>
+      <stop offset="0.5" stop-color="#ffb3c7"/>
+      <stop offset="1" stop-color="#9fdcff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 날개 -->
+  <g stroke="#ffffff" stroke-width="5">
+    <ellipse cx="76" cy="148" rx="48" ry="31" transform="rotate(-28 76 148)" fill="url(#nyWingL)"/>
+    <ellipse cx="72" cy="196" rx="33" ry="21" transform="rotate(18 72 196)" fill="url(#nyWingL)"/>
+    <ellipse cx="244" cy="148" rx="48" ry="31" transform="rotate(28 244 148)" fill="url(#nyWingR)"/>
+    <ellipse cx="248" cy="196" rx="33" ry="21" transform="rotate(-18 248 196)" fill="url(#nyWingR)"/>
+  </g>
+
+  <!-- 발 -->
+  <g fill="#ff6fa8" stroke="#2b2350" stroke-width="5">
+    <rect x="116" y="316" width="32" height="24" rx="11"/>
+    <rect x="172" y="316" width="32" height="24" rx="11"/>
+  </g>
+
+  <!-- 몸통 -->
+  <rect x="96" y="98" width="128" height="226" rx="34" fill="url(#nyBody)" stroke="#2b2350" stroke-width="6"/>
+  <line x1="99" y1="170" x2="221" y2="170" stroke="#2b2350" stroke-width="5" stroke-linecap="round"/>
+  <rect x="200" y="124" width="9" height="30" rx="4.5" fill="#2b2350"/>
+  <rect x="200" y="186" width="9" height="34" rx="4.5" fill="#2b2350"/>
+  <rect x="110" y="112" width="12" height="40" rx="6" fill="#ffffff" opacity="0.75"/>
+
+  <!-- 냉장고 자석 -->
+  <path d="M152 126 c-6 -10 -22 -6 -18 6 c2 6 10 11 18 17 c8 -6 16 -11 18 -17 c4 -12 -12 -16 -18 -6 z"
+        fill="#ff4d8d" stroke="#2b2350" stroke-width="3.5"/>
+  <path d="M186 132 l4 9 l10 1 l-7.5 6.5 l2.5 10 l-9 -5.5 l-9 5.5 l2.5 -10 l-7.5 -6.5 l10 -1 z"
+        fill="#ffd23f" stroke="#2b2350" stroke-width="3" stroke-linejoin="round"/>
+  <g transform="translate(124 300)">
+    <circle r="5" cx="0" cy="-7" fill="#8b5cff"/><circle r="5" cx="7" cy="0" fill="#8b5cff"/>
+    <circle r="5" cx="0" cy="7" fill="#8b5cff"/><circle r="5" cx="-7" cy="0" fill="#8b5cff"/>
+    <circle r="4.5" fill="#ffd23f" stroke="#2b2350" stroke-width="2"/>
+  </g>
+
+  <!-- 웃는 얼굴 -->
+  <g fill="none" stroke="#2b2350" stroke-width="6" stroke-linecap="round">
+    <path d="M124 238 Q136 222 148 238"/>
+    <path d="M172 238 Q184 222 196 238"/>
+  </g>
+  <ellipse cx="116" cy="258" rx="14" ry="9" fill="#ff7aa8" opacity="0.85"/>
+  <ellipse cx="204" cy="258" rx="14" ry="9" fill="#ff7aa8" opacity="0.85"/>
+  <path d="M142 250 Q160 252 178 250 Q176 280 160 281 Q144 280 142 250 Z" fill="#2b2350"/>
+  <path d="M149 270 Q160 262 171 270 Q168 279 160 279 Q152 279 149 270 Z" fill="#ff6f91"/>
+
+  <!-- 팔과 손 -->
+  <path d="M98 246 Q74 238 68 212" fill="none" stroke="#2b2350" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="67" cy="207" r="10" fill="#ffd23f" stroke="#2b2350" stroke-width="5"/>
+  <path d="M222 236 Q246 222 252 196" fill="none" stroke="#2b2350" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- 별 지팡이 -->
+  <line x1="252" y1="198" x2="268" y2="112" stroke="#ff8a3d" stroke-width="7" stroke-linecap="round"/>
+  <path d="M270 70 L280 94 L305 96 L286 112 L292 137 L270 123 L248 137 L254 112 L235 96 L260 94 Z"
+        fill="#ffd23f" stroke="#2b2350" stroke-width="4.5" stroke-linejoin="round"/>
+  <circle cx="252" cy="198" r="10" fill="#ffd23f" stroke="#2b2350" stroke-width="5"/>
+
+  <!-- 요리사 모자 -->
+  <g stroke="#2b2350" stroke-width="4.5" fill="#ffffff">
+    <circle cx="132" cy="62" r="24"/>
+    <circle cx="160" cy="48" r="29"/>
+    <circle cx="188" cy="62" r="24"/>
+  </g>
+  <rect x="122" y="64" width="76" height="22" fill="#ffffff"/>
+  <rect x="122" y="80" width="76" height="22" rx="7" fill="#ff4d8d" stroke="#2b2350" stroke-width="4.5"/>
+  <g fill="#ffffff"><circle cx="138" cy="91" r="3"/><circle cx="160" cy="91" r="3"/><circle cx="182" cy="91" r="3"/></g>
+
+  <!-- 반짝이 -->
+  <path d="M38 88 l5 13 l13 5 l-13 5 l-5 13 l-5 -13 l-13 -5 l13 -5 z" fill="#ffd23f"/>
+  <path d="M292 248 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4 z" fill="#3bb6ff"/>
+  <circle cx="56" cy="262" r="6" fill="#ff4d8d"/>
+  <circle cx="300" cy="168" r="5" fill="#8b5cff"/>
+</svg>
+</div>
+    <span class="name">냉요</span>
+    <div class="bubble">냉털 가보자고! ✨</div>
+  </div>
+  <span class="food" style="right:72px;top:180px;transform:rotate(14deg)">🥕</span>
+  <span class="food" style="right:470px;top:300px;transform:rotate(-12deg)">🥚</span>
+  <span class="food" style="right:58px;top:330px;transform:rotate(-8deg)">🧀</span>
+</body>
+</html>
