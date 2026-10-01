@@ -251,6 +251,38 @@
     margin-top: 2px;
   }
   .rec-sub.missing { color: var(--need-text); font-weight: 700; }
+  .tag-builtin {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #eef0ec;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    vertical-align: 2px;
+  }
+  .tag-builtin.big { font-size: 15px; padding: 2px 12px; vertical-align: 6px; margin-left: 12px; }
+  .rec-more { margin-top: 8px; }
+  .rec-more summary {
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 15px;
+    padding: 6px 2px;
+  }
+  .rec-more summary:hover { color: var(--primary-dark); }
+  .rec-more[open] summary { margin-bottom: 6px; }
+  .link-btn {
+    display: block;
+    margin: 18px auto 0;
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .link-btn:hover { color: var(--primary-dark); }
 
   /* ---------- 상단 알림(백업 알림, 기한 경과 경고) ---------- */
   .banners {
@@ -689,7 +721,7 @@
     <h2 id="ingredientDialogTitle">재료 추가</h2>
     <div class="field">
       <label for="ingName">재료명</label>
-      <input id="ingName" type="text" maxlength="30" placeholder="예: 양파" autocomplete="off">
+      <input id="ingName" type="text" maxlength="30" placeholder="예: 양파" autocomplete="off" list="ingredientNames">
     </div>
     <div class="field">
       <label for="ingCategory">카테고리</label>
@@ -732,6 +764,278 @@
     '소금', '설탕', '간장', '진간장', '국간장', '식용유', '참기름', '들기름', '후추',
     '다진 마늘', '고춧가루', '식초', '맛술', '물엿', '올리고당', '깨', '버터', '물'
   ];
+  // ---------- 기본 레시피 (중·고등 방과후 조리실습 수준) ----------
+  // [이름, 분량] 묶음으로 적고, 아래에서 {name, amount} 모양으로 바꾼다.
+  const BUILTIN_RECIPES = [
+    {
+      id: 'b01', name: '김치볶음밥',
+      mains: [['김치', '1컵'], ['밥', '2공기'], ['대파', '1/3대'], ['달걀', '2개']],
+      seasonings: [['식용유', '2큰술'], ['간장', '1큰술'], ['설탕', '1/2작은술'], ['참기름', '1작은술']],
+      steps: ['김치는 잘게 썰고, 대파는 송송 썬다.', '달군 팬에 식용유를 두르고 대파를 볶아 파기름을 낸다.',
+        '김치와 설탕을 넣고 김치가 부드러워질 때까지 볶는다.', '밥과 간장을 넣고 밥알이 고루 섞이도록 볶는다.',
+        '다른 팬에 달걀 프라이를 하고, 볶음밥을 담아 참기름을 두른 뒤 달걀을 올린다.']
+    },
+    {
+      id: 'b02', name: '달걀볶음밥',
+      mains: [['밥', '2공기'], ['달걀', '3개'], ['대파', '1/2대']],
+      seasonings: [['식용유', '2큰술'], ['간장', '1큰술'], ['소금', '약간'], ['참기름', '1작은술']],
+      steps: ['대파는 송송 썰고, 달걀은 그릇에 풀어 둔다.', '팬에 식용유를 두르고 대파를 볶아 향을 낸다.',
+        '달걀물을 붓고 젓가락으로 저어 부드럽게 익힌다.', '밥을 넣고 달걀과 고루 섞이도록 볶는다.',
+        '간장을 팬 가장자리에 둘러 향을 내고 소금으로 간한 뒤 참기름을 두른다.']
+    },
+    {
+      id: 'b03', name: '참치마요덮밥',
+      mains: [['밥', '2공기'], ['참치캔', '1개'], ['마요네즈', '3큰술'], ['양파', '1/2개'], ['김가루', '약간']],
+      seasonings: [['간장', '2큰술'], ['설탕', '1큰술'], ['물', '3큰술'], ['식용유', '1큰술']],
+      steps: ['참치는 체에 밭쳐 기름을 뺀다.', '양파는 얇게 채 썰어 식용유를 두른 팬에 볶는다.',
+        '간장, 설탕, 물을 넣고 양파가 투명해질 때까지 졸인다.', '그릇에 밥을 담고 졸인 양파와 참치를 올린다.',
+        '마요네즈를 뿌리고 김가루를 얹는다.']
+    },
+    {
+      id: 'b04', name: '참치주먹밥',
+      mains: [['밥', '2공기'], ['참치캔', '1개'], ['마요네즈', '2큰술'], ['김가루', '1/2컵']],
+      seasonings: [['참기름', '1큰술'], ['소금', '약간'], ['깨', '약간']],
+      steps: ['참치는 기름을 빼고 마요네즈와 섞는다.', '밥에 참기름, 소금, 깨, 김가루를 넣고 고루 섞는다.',
+        '위생장갑을 끼고 밥을 한 줌 쥐어 가운데를 오목하게 만든다.', '참치마요를 한 숟가락 넣고 밥으로 감싸 동그랗게 뭉친다.']
+    },
+    {
+      id: 'b05', name: '김밥',
+      mains: [['밥', '3공기'], ['김', '김밥용 5장'], ['단무지', '5줄'], ['햄', '5줄'], ['달걀', '3개'], ['오이', '1개'], ['게맛살', '5줄']],
+      seasonings: [['소금', '약간'], ['참기름', '2큰술'], ['깨', '약간'], ['식용유', '약간']],
+      steps: ['밥에 소금, 참기름, 깨를 넣고 고루 섞어 한 김 식힌다.', '오이는 길게 잘라 씨를 빼고 소금에 살짝 절인다.',
+        '달걀은 풀어 지단을 부친 뒤 길게 썰고, 햄도 팬에 살짝 굽는다.', '김 위에 밥을 얇게 펴고 재료를 올려 단단하게 만다.',
+        '김밥 겉면에 참기름을 바르고, 칼에 물을 묻혀 한입 크기로 썬다.']
+    },
+    {
+      id: 'b06', name: '달걀말이',
+      mains: [['달걀', '4개'], ['대파', '1/4대'], ['당근', '1/6개']],
+      seasonings: [['소금', '약간'], ['식용유', '약간']],
+      steps: ['대파와 당근은 잘게 다진다.', '달걀을 풀고 다진 채소와 소금을 넣어 섞는다.',
+        '약한 불로 달군 팬에 식용유를 얇게 두르고 달걀물을 1/3만 붓는다.',
+        '반쯤 익으면 한쪽 끝부터 돌돌 말고, 남은 달걀물을 나눠 부어 이어서 만다.', '한 김 식힌 뒤 도톰하게 썬다.']
+    },
+    {
+      id: 'b07', name: '오므라이스',
+      mains: [['밥', '2공기'], ['달걀', '4개'], ['양파', '1/2개'], ['당근', '1/4개'], ['햄', '50g'], ['케첩', '4큰술']],
+      seasonings: [['식용유', '약간'], ['소금', '약간']],
+      steps: ['양파, 당근, 햄은 작게 깍둑 썬다.', '팬에 식용유를 두르고 채소와 햄을 볶다가 밥과 케첩 2큰술을 넣어 볶는다.',
+        '달걀을 풀어 소금으로 간한다.', '약한 불로 달군 팬에 달걀물을 얇게 부치고 볶음밥을 올려 감싼다.',
+        '접시에 옮겨 담고 남은 케첩을 뿌린다.']
+    },
+    {
+      id: 'b08', name: '비빔밥',
+      mains: [['밥', '2공기'], ['콩나물', '1줌'], ['애호박', '1/3개'], ['당근', '1/4개'], ['달걀', '2개']],
+      seasonings: [['고추장', '2큰술'], ['참기름', '1큰술'], ['소금', '약간'], ['식용유', '약간'], ['깨', '약간']],
+      steps: ['콩나물은 끓는 물에 소금을 넣고 4~5분 데친 뒤 소금과 참기름으로 무친다.',
+        '애호박과 당근은 채 썰어 식용유를 두른 팬에 각각 소금으로 간해 볶는다.', '달걀은 프라이를 한다.',
+        '그릇에 밥을 담고 나물과 달걀을 둘러 올린다.', '고추장, 참기름, 깨를 곁들여 비벼 먹는다.']
+    },
+    {
+      id: 'b09', name: '카레라이스',
+      mains: [['카레가루', '1봉(100g)'], ['감자', '2개'], ['당근', '1/2개'], ['양파', '1개'], ['돼지고기', '200g'], ['밥', '4공기']],
+      seasonings: [['식용유', '2큰술'], ['물', '3.5컵']],
+      steps: ['감자, 당근, 양파, 돼지고기는 한입 크기로 썬다.', '냄비에 식용유를 두르고 돼지고기를 겉면이 익을 때까지 볶는다.',
+        '채소를 넣고 함께 볶다가 물을 붓고 감자가 익을 때까지 15분 정도 끓인다.',
+        '불을 약하게 줄이고 카레가루를 조금씩 풀어 넣으며 눌어붙지 않게 젓는다.', '걸쭉해지면 밥 위에 얹어 낸다.']
+    },
+    {
+      id: 'b10', name: '떡볶이',
+      mains: [['떡볶이떡', '300g'], ['어묵', '2장'], ['대파', '1/2대'], ['양배추', '1/8통']],
+      seasonings: [['고추장', '2큰술'], ['고춧가루', '1큰술'], ['설탕', '2큰술'], ['간장', '1큰술'], ['물', '2컵']],
+      steps: ['떡은 찬물에 헹구고, 어묵은 삼각형으로, 양배추와 대파는 먹기 좋게 썬다.',
+        '냄비에 물, 고추장, 고춧가루, 설탕, 간장을 넣고 끓인다.', '양념이 끓으면 떡과 양배추를 넣고 저어 가며 끓인다.',
+        '떡이 말랑해지면 어묵과 대파를 넣고 국물이 자작해질 때까지 졸인다.']
+    },
+    {
+      id: 'b11', name: '떡꼬치',
+      mains: [['떡볶이떡', '300g'], ['케첩', '3큰술']],
+      seasonings: [['고추장', '1큰술'], ['설탕', '1큰술'], ['물엿', '2큰술'], ['간장', '1작은술'], ['식용유', '3큰술']],
+      steps: ['떡은 끓는 물에 살짝 데쳐 물기를 빼고 꼬치에 4~5개씩 끼운다.', '케첩, 고추장, 설탕, 물엿, 간장을 섞어 양념을 만든다.',
+        '팬에 식용유를 두르고 떡꼬치를 앞뒤로 노릇하게 굽는다.', '약한 불에서 양념을 앞뒤로 발라 살짝 더 굽는다.',
+        '꼬치 끝이 뾰족하니 조심해서 먹는다.']
+    },
+    {
+      id: 'b12', name: '김치전',
+      mains: [['김치', '1컵'], ['부침가루', '1컵'], ['양파', '1/4개']],
+      seasonings: [['물', '2/3컵'], ['식용유', '넉넉히'], ['설탕', '1/2작은술']],
+      steps: ['김치와 양파는 잘게 썬다.', '부침가루에 물을 넣고 멍울 없이 섞은 뒤 김치, 양파, 설탕을 넣는다.',
+        '달군 팬에 식용유를 넉넉히 두르고 반죽을 얇게 편다.', '가장자리가 노릇해지면 뒤집어 앞뒤로 바삭하게 부친다.']
+    },
+    {
+      id: 'b13', name: '감자전',
+      mains: [['감자', '3개'], ['부침가루', '2큰술']],
+      seasonings: [['소금', '약간'], ['식용유', '넉넉히']],
+      steps: ['감자는 껍질을 벗겨 강판에 간다. 손을 다치지 않게 끝부분은 남긴다.',
+        '간 감자를 체에 밭쳐 물기를 빼고, 그릇 바닥에 가라앉은 전분은 다시 섞는다.', '부침가루와 소금을 넣어 반죽을 만든다.',
+        '달군 팬에 식용유를 두르고 한 숟가락씩 얇게 펴서 앞뒤로 노릇하게 부친다.']
+    },
+    {
+      id: 'b14', name: '애호박전',
+      mains: [['애호박', '1개'], ['달걀', '2개'], ['밀가루', '1/2컵']],
+      seasonings: [['소금', '약간'], ['식용유', '약간']],
+      steps: ['애호박은 0.5cm 두께로 동그랗게 썰어 소금을 살짝 뿌린다.', '달걀은 풀어 소금으로 간한다.',
+        '애호박에 밀가루를 얇게 묻히고 달걀물을 입힌다.', '달군 팬에 식용유를 두르고 약한 불에서 앞뒤로 노릇하게 부친다.']
+    },
+    {
+      id: 'b15', name: '부추전',
+      mains: [['부추', '1/2단'], ['부침가루', '1컵'], ['양파', '1/4개']],
+      seasonings: [['물', '2/3컵'], ['식용유', '넉넉히']],
+      steps: ['부추는 4cm 길이로 썰고 양파는 채 썬다.', '부침가루에 물을 넣고 멍울 없이 섞은 뒤 부추와 양파를 넣는다.',
+        '달군 팬에 식용유를 두르고 반죽을 얇게 편다.', '앞뒤로 노릇하게 부친다.']
+    },
+    {
+      id: 'b16', name: '된장찌개',
+      mains: [['두부', '1/2모'], ['애호박', '1/3개'], ['양파', '1/2개'], ['감자', '1개'], ['대파', '1/3대']],
+      seasonings: [['된장', '2큰술'], ['다진 마늘', '1/2큰술'], ['고춧가루', '1/2작은술'], ['물', '2.5컵']],
+      steps: ['감자, 애호박, 양파, 두부는 한입 크기로 썰고 대파는 어슷 썬다.', '냄비에 물을 붓고 된장을 풀어 끓인다.',
+        '감자를 먼저 넣고 5분 끓인 뒤 애호박과 양파를 넣는다.', '두부, 다진 마늘, 고춧가루를 넣고 5분 더 끓인다.',
+        '대파를 넣고 한소끔 끓여 완성한다.']
+    },
+    {
+      id: 'b17', name: '김치찌개',
+      mains: [['김치', '2컵'], ['돼지고기', '150g'], ['두부', '1/2모'], ['대파', '1/2대'], ['양파', '1/2개']],
+      seasonings: [['고춧가루', '1큰술'], ['다진 마늘', '1/2큰술'], ['식용유', '1큰술'], ['국간장', '1작은술'], ['물', '3컵']],
+      steps: ['김치와 돼지고기는 한입 크기로, 두부·양파·대파도 먹기 좋게 썬다.',
+        '냄비에 식용유를 두르고 돼지고기를 볶다가 김치를 넣고 함께 볶는다.',
+        '물을 붓고 끓으면 양파, 고춧가루, 다진 마늘을 넣고 10분 정도 끓인다.', '두부와 대파를 넣고 국간장으로 간을 맞춰 한소끔 더 끓인다.']
+    },
+    {
+      id: 'b18', name: '소고기미역국',
+      mains: [['마른미역', '10g'], ['소고기', '국거리 100g']],
+      seasonings: [['국간장', '1.5큰술'], ['참기름', '1큰술'], ['다진 마늘', '1/2큰술'], ['소금', '약간'], ['물', '5컵']],
+      steps: ['마른미역은 찬물에 20분 불린 뒤 바락바락 씻어 먹기 좋게 자른다.',
+        '냄비에 참기름을 두르고 소고기를 볶다가 미역을 넣어 함께 볶는다.',
+        '물을 붓고 끓으면 다진 마늘, 국간장을 넣고 중약불에서 15분 끓인다.', '소금으로 간을 맞춘다.']
+    },
+    {
+      id: 'b19', name: '떡국',
+      mains: [['떡국떡', '400g'], ['달걀', '1개'], ['대파', '1/3대'], ['김가루', '약간']],
+      seasonings: [['국간장', '1큰술'], ['다진 마늘', '1/2큰술'], ['소금', '약간'], ['물', '5컵']],
+      steps: ['떡국떡은 찬물에 10분 정도 불린다.', '냄비에 물을 끓이고 국간장, 다진 마늘을 넣는다.',
+        '떡을 넣고 떡이 떠오를 때까지 끓인다.', '달걀물을 둘러 넣고 대파를 넣은 뒤 소금으로 간한다.', '그릇에 담고 김가루를 올린다.']
+    },
+    {
+      id: 'b20', name: '소불고기',
+      mains: [['소고기', '불고기용 300g'], ['양파', '1/2개'], ['대파', '1/2대'], ['당근', '1/4개']],
+      seasonings: [['간장', '4큰술'], ['설탕', '2큰술'], ['다진 마늘', '1큰술'], ['참기름', '1큰술'], ['후추', '약간'], ['물', '3큰술']],
+      steps: ['간장, 설탕, 다진 마늘, 참기름, 후추, 물을 섞어 양념장을 만든다.',
+        '소고기는 키친타월로 핏물을 닦고 양념장에 15분 재운다.', '양파와 당근은 채 썰고 대파는 어슷 썬다.',
+        '달군 팬에 고기와 채소를 넣고 고기가 완전히 익을 때까지 볶는다.']
+    },
+    {
+      id: 'b21', name: '제육볶음',
+      mains: [['돼지고기', '앞다리살 300g'], ['양파', '1/2개'], ['대파', '1/2대']],
+      seasonings: [['고추장', '2큰술'], ['고춧가루', '1큰술'], ['간장', '1큰술'], ['설탕', '1큰술'], ['다진 마늘', '1큰술'], ['참기름', '1작은술'], ['식용유', '약간']],
+      steps: ['고추장, 고춧가루, 간장, 설탕, 다진 마늘, 참기름을 섞어 양념을 만든다.', '돼지고기에 양념을 넣고 버무려 10분 재운다.',
+        '양파는 채 썰고 대파는 어슷 썬다.', '팬에 식용유를 두르고 고기를 볶다가 채소를 넣고 고기 속까지 완전히 익을 때까지 볶는다.']
+    },
+    {
+      id: 'b22', name: '어묵볶음',
+      mains: [['어묵', '4장'], ['양파', '1/2개'], ['당근', '1/4개']],
+      seasonings: [['간장', '1.5큰술'], ['설탕', '1/2큰술'], ['물엿', '1큰술'], ['식용유', '약간'], ['깨', '약간'], ['물', '3큰술']],
+      steps: ['어묵은 먹기 좋게 썰어 끓는 물에 살짝 데쳐 기름기를 뺀다.', '양파와 당근은 채 썬다.',
+        '팬에 식용유를 두르고 채소를 볶다가 어묵을 넣어 볶는다.', '간장, 설탕, 물을 넣고 졸이다가 물엿과 깨를 넣어 마무리한다.']
+    },
+    {
+      id: 'b23', name: '감자채볶음',
+      mains: [['감자', '2개'], ['양파', '1/2개'], ['당근', '1/4개']],
+      seasonings: [['소금', '1/2작은술'], ['식용유', '2큰술'], ['깨', '약간']],
+      steps: ['감자는 얇게 채 썰어 찬물에 담가 전분을 뺀 뒤 물기를 뺀다.', '양파와 당근도 채 썬다.',
+        '팬에 식용유를 두르고 감자를 볶다가 양파와 당근을 넣는다.', '감자가 투명하게 익으면 소금으로 간하고 깨를 뿌린다.']
+    },
+    {
+      id: 'b24', name: '소시지채소볶음',
+      mains: [['소시지', '200g'], ['양파', '1/2개'], ['파프리카', '1/2개'], ['케첩', '3큰술']],
+      seasonings: [['식용유', '약간'], ['설탕', '1/2큰술'], ['간장', '1작은술']],
+      steps: ['소시지에 칼집을 내고 끓는 물에 살짝 데친다.', '양파와 파프리카는 한입 크기로 썬다.',
+        '팬에 식용유를 두르고 채소를 볶다가 소시지를 넣는다.', '케첩, 설탕, 간장을 넣고 고루 볶아 윤기를 낸다.']
+    },
+    {
+      id: 'b25', name: '토마토스파게티',
+      mains: [['스파게티면', '200g'], ['토마토소스', '1.5컵'], ['양파', '1/2개'], ['소시지', '100g']],
+      seasonings: [['소금', '1큰술(면 삶는 물)'], ['식용유', '약간'], ['다진 마늘', '1/2큰술'], ['설탕', '약간']],
+      steps: ['끓는 물에 소금을 넣고 스파게티면을 봉지에 적힌 시간만큼 삶는다.', '양파는 채 썰고 소시지는 송송 썬다.',
+        '팬에 식용유를 두르고 다진 마늘, 양파, 소시지를 볶는다.', '토마토소스와 설탕을 넣고 끓으면 삶은 면을 넣어 고루 버무린다.']
+    },
+    {
+      id: 'b26', name: '크림스파게티',
+      mains: [['스파게티면', '200g'], ['우유', '1컵'], ['생크림', '1컵'], ['베이컨', '4줄'], ['양파', '1/2개']],
+      seasonings: [['소금', '약간'], ['후추', '약간'], ['다진 마늘', '1/2큰술'], ['버터', '1큰술']],
+      steps: ['끓는 물에 소금을 넣고 스파게티면을 삶는다.', '베이컨과 양파는 먹기 좋게 썬다.',
+        '팬에 버터를 녹이고 다진 마늘, 양파, 베이컨을 볶는다.',
+        '우유와 생크림을 넣고 약한 불에서 끓어오르면 면을 넣어 섞고 소금, 후추로 간한다.']
+    },
+    {
+      id: 'b27', name: '햄치즈샌드위치',
+      mains: [['식빵', '4장'], ['햄', '4장'], ['슬라이스치즈', '2장'], ['양상추', '4장'], ['토마토', '1개'], ['마요네즈', '2큰술']],
+      seasonings: [['후추', '약간']],
+      steps: ['양상추는 씻어 물기를 빼고, 토마토는 동그랗게 썬다.', '식빵 한쪽 면에 마요네즈를 얇게 바른다.',
+        '식빵 위에 양상추, 햄, 치즈, 토마토 순으로 올리고 나머지 식빵을 덮는다.', '랩으로 감싸 잠시 두었다가 반으로 썬다.']
+    },
+    {
+      id: 'b28', name: '달걀샌드위치',
+      mains: [['식빵', '4장'], ['달걀', '4개'], ['마요네즈', '3큰술']],
+      seasonings: [['소금', '약간'], ['설탕', '1작은술'], ['후추', '약간']],
+      steps: ['달걀은 찬물에서부터 12분 삶아 찬물에 식힌 뒤 껍질을 벗긴다.', '삶은 달걀을 포크로 잘게 으깬다.',
+        '마요네즈, 소금, 설탕, 후추를 넣고 섞는다.', '식빵 사이에 달걀 속을 넉넉히 넣고 반으로 썬다.']
+    },
+    {
+      id: 'b29', name: '길거리토스트',
+      mains: [['식빵', '4장'], ['달걀', '3개'], ['양배추', '1/8통'], ['당근', '1/4개'], ['햄', '2장'], ['슬라이스치즈', '2장'], ['케첩', '약간']],
+      seasonings: [['버터', '2큰술'], ['설탕', '2작은술'], ['소금', '약간']],
+      steps: ['양배추와 당근은 곱게 채 썰어 달걀, 소금과 섞는다.', '팬에 버터를 녹여 식빵을 앞뒤로 노릇하게 굽는다.',
+        '같은 팬에 달걀 반죽을 식빵 크기로 부친다.', '식빵 위에 달걀부침, 햄, 치즈를 올리고 설탕과 케첩을 뿌린 뒤 식빵을 덮는다.']
+    },
+    {
+      id: 'b30', name: '프렌치토스트',
+      mains: [['식빵', '4장'], ['달걀', '2개'], ['우유', '1/2컵']],
+      seasonings: [['설탕', '1큰술'], ['버터', '1큰술'], ['소금', '약간']],
+      steps: ['달걀, 우유, 설탕, 소금을 섞는다.', '식빵을 달걀물에 앞뒤로 충분히 적신다.',
+        '약한 불에 버터를 녹이고 식빵을 앞뒤로 노릇하게 굽는다.', '먹기 좋게 잘라 설탕을 살짝 뿌린다.']
+    },
+    {
+      id: 'b31', name: '핫케이크',
+      mains: [['핫케이크가루', '2컵'], ['달걀', '1개'], ['우유', '1컵']],
+      seasonings: [['식용유', '약간'], ['버터', '약간']],
+      steps: ['그릇에 달걀과 우유를 섞고 핫케이크가루를 넣어 멍울 없이 섞는다.',
+        '팬을 약한 불로 달군 뒤 식용유를 키친타월로 얇게 바른다.',
+        '반죽을 한 국자 둥글게 붓고 표면에 기포가 올라오면 뒤집는다.', '뒷면도 노릇하게 구워 버터를 올린다.']
+    },
+    {
+      id: 'b32', name: '과일요거트샐러드',
+      mains: [['사과', '1개'], ['바나나', '1개'], ['플레인요거트', '1컵']],
+      seasonings: [['꿀', '1큰술']],
+      steps: ['사과는 껍질째 깨끗이 씻어 한입 크기로 썬다.', '바나나는 껍질을 벗겨 동그랗게 썬다.',
+        '그릇에 과일을 담고 플레인요거트와 꿀을 넣어 가볍게 버무린다.']
+    },
+    {
+      id: 'b33', name: '고구마맛탕',
+      mains: [['고구마', '2개']],
+      seasonings: [['식용유', '1컵'], ['설탕', '3큰술'], ['물엿', '2큰술'], ['깨', '약간']],
+      steps: ['고구마는 껍질을 벗겨 한입 크기로 썰고 찬물에 헹궈 물기를 닦는다.',
+        '팬에 식용유를 넉넉히 두르고 중약불에서 고구마가 익을 때까지 굴려 가며 굽는다.',
+        '기름을 따라 내고 설탕과 물엿을 넣어 약한 불에서 녹이며 고구마에 고루 입힌다.',
+        '깨를 뿌리고 서로 붙지 않게 펼쳐 식힌다. 설탕 시럽은 매우 뜨거우니 손으로 만지지 않는다.']
+    }
+  ].map((r) => ({
+    ...r,
+    builtin: true,
+    mains: r.mains.map(([name, amount]) => ({ name, amount })),
+    seasonings: r.seasonings.map(([name, amount]) => ({ name, amount }))
+  }));
+
+  // 같은 재료를 다르게 부르는 이름 (띄어쓰기 없이 적는다) → 기준 이름
+  const SYNONYMS = {
+    '계란': '달걀', '즉석밥': '밥', '햇반': '밥', '공깃밥': '밥', '공기밥': '밥', '쌀밥': '밥', '흰밥': '밥',
+    '참치': '참치캔', '참치통조림': '참치캔', '비엔나소시지': '소시지', '비엔나': '소시지',
+    '파': '대파', '스팸': '햄', '통조림햄': '햄', '떡볶이용떡': '떡볶이떡', '떡국용떡': '떡국떡',
+    '피망': '파프리카', '김밥김': '김', '케찹': '케첩', '마요': '마요네즈',
+    '앞다리살': '돼지고기', '돼지앞다리살': '돼지고기', '목살': '돼지고기', '삼겹살': '돼지고기', '돼지고기앞다리살': '돼지고기',
+    '쇠고기': '소고기', '불고기용소고기': '소고기', '국거리소고기': '소고기', '소불고기용': '소고기',
+    '미역': '마른미역', '플레인요구르트': '플레인요거트', '파스타면': '스파게티면', '스파게티': '스파게티면',
+    '체다치즈': '슬라이스치즈', '치즈': '슬라이스치즈', '팬케이크가루': '핫케이크가루', '크래미': '게맛살'
+  };
+
   // 이 범위를 벗어난 소비기한은 연도 오타일 수 있어 저장 전에 한 번 더 묻는다
   const CHECK_FUTURE_DAYS = 365 * 3;
   const CHECK_PAST_DAYS = 30;
@@ -750,7 +1054,7 @@
       // 잘못된 항목이 섞여 있어도 앱이 멈추지 않게 검사해서 읽는다
       if (raw) return sanitizeData(JSON.parse(raw)).data;
     } catch (e) { /* 읽기 실패 시 빈 상태로 시작 */ }
-    return { ingredients: [], recipes: [] };
+    return { ingredients: [], recipes: [], hiddenBuiltins: [] };
   }
 
   // 변경을 적용하고 저장한다. 저장에 실패하면 변경 전 상태로 되돌린다.
@@ -839,7 +1143,7 @@
 
   // 올바른 항목만 남기고, 빠진 개수를 함께 돌려준다
   function sanitizeData(data) {
-    const out = { ingredients: [], recipes: [] };
+    const out = { ingredients: [], recipes: [], hiddenBuiltins: [] };
     let skipped = 0;
     const ids = new Set();
     const uniqueId = (id) => {
@@ -868,7 +1172,7 @@
       const name = r && typeof r === 'object' ? textField(r.name, 40) : '';
       const mains = name ? pairs(r.mains) : [];
       if (!name || !mains.length) { skipped++; return; }
-      out.recipes.push({
+      const recipe = {
         id: uniqueId(r.id),
         name,
         mains,
@@ -876,8 +1180,13 @@
         steps: (Array.isArray(r.steps) ? r.steps : [])
           .filter((s) => typeof s === 'string' && s.trim())
           .map((s) => s.trim().slice(0, 300))
-      });
+      };
+      if (typeof r.fromBuiltin === 'string' && r.fromBuiltin) recipe.fromBuiltin = r.fromBuiltin;
+      out.recipes.push(recipe);
     });
+    // 숨긴 기본 레시피 목록 (예전 데이터에는 없을 수 있다)
+    out.hiddenBuiltins = [...new Set((Array.isArray(src.hiddenBuiltins) ? src.hiddenBuiltins : [])
+      .filter((id) => typeof id === 'string' && id))];
     return { data: out, skipped };
   }
 
@@ -954,11 +1263,17 @@
     return String(s).replace(/\s+/g, '').toLowerCase();
   }
 
+  // 같은 재료의 다른 이름까지 하나로 맞춘 비교용 이름 ("계란" → "달걀", "햇반" → "밥")
+  function canon(s) {
+    const n = norm(s);
+    return SYNONYMS[n] ? norm(SYNONYMS[n]) : n;
+  }
+
   // 기한이 남은 재료(비교에 쓰임)와 기한 지난 재료(안내용)의 이름 모음
   function fridgeSets() {
     const fresh = new Set();
     const expired = new Set();
-    state.ingredients.forEach((i) => (daysLeft(i.expiry) < 0 ? expired : fresh).add(norm(i.name)));
+    state.ingredients.forEach((i) => (daysLeft(i.expiry) < 0 ? expired : fresh).add(canon(i.name)));
     return { fresh, expired };
   }
 
@@ -967,39 +1282,74 @@
   }
 
   function missingOf(r, sets) {
-    return recipeMains(r).filter((m) => !sets.fresh.has(norm(m.name)));
+    return recipeMains(r).filter((m) => !sets.fresh.has(canon(m.name)));
   }
 
   // 냉장고에 있지만 기한이 지나 쓸 수 없는 재료는 그렇다고 알려준다
   function missingLabel(m, sets) {
-    return sets.expired.has(norm(m.name)) ? `${m.name}(기한 지남)` : m.name;
+    return sets.expired.has(canon(m.name)) ? `${m.name}(기한 지남)` : m.name;
   }
 
-  function byRecipeName(a, b) {
-    return a.r.name.localeCompare(b.r.name, 'ko');
+  // ---------- 내 레시피 + 기본 레시피 ----------
+  // 숨긴 기본 레시피와, 고쳐서 내 레시피로 만든 기본 레시피는 빼고 보여준다
+  function visibleBuiltins() {
+    const hidden = new Set(state.hiddenBuiltins);
+    const copied = new Set(state.recipes.map((r) => r.fromBuiltin).filter(Boolean));
+    return BUILTIN_RECIPES.filter((b) => !hidden.has(b.id) && !copied.has(b.id));
   }
+
+  function allRecipes() {
+    return [...state.recipes, ...visibleBuiltins()];
+  }
+
+  function findRecipe(id) {
+    return state.recipes.find((r) => r.id === id) || BUILTIN_RECIPES.find((b) => b.id === id) || null;
+  }
+
+  // 내 레시피를 먼저, 그다음 이름순
+  function byRecipeOrder(a, b) {
+    return (a.r.builtin ? 1 : 0) - (b.r.builtin ? 1 : 0) || a.r.name.localeCompare(b.r.name, 'ko');
+  }
+
+  // 재료가 이만큼 이상 부족한 기본 레시피는 접어 둔다 (내 레시피는 항상 보인다)
+  const FOLD_MISSING = 3;
 
   function renderRecipes() {
     const wrap = $('#recommendList');
-    $('#recipeCount').textContent = `레시피 ${state.recipes.length}개`;
+    const recipes = allRecipes();
+    const builtinCount = recipes.filter((r) => r.builtin).length;
+    $('#recipeCount').textContent = builtinCount
+      ? `레시피 ${recipes.length}개 (기본 ${builtinCount}개)`
+      : `레시피 ${recipes.length}개`;
 
-    if (!state.recipes.length) {
-      wrap.innerHTML = '<p class="empty">아직 등록된 레시피가 없어요.<br>오른쪽 아래 <b>＋</b> 버튼 → <b>레시피 추가</b>로 첫 레시피를 등록해 보세요.</p>';
+    const hiddenCount = state.hiddenBuiltins.filter((id) => BUILTIN_RECIPES.some((b) => b.id === id)).length;
+    const restoreHtml = hiddenCount
+      ? `<button type="button" class="link-btn" id="restoreBuiltins">숨긴 기본 레시피 ${hiddenCount}개 다시 보이기</button>`
+      : '';
+
+    if (!recipes.length) {
+      wrap.innerHTML = '<p class="empty">아직 등록된 레시피가 없어요.<br>오른쪽 아래 <b>＋</b> 버튼 → <b>레시피 추가</b>로 첫 레시피를 등록해 보세요.</p>' + restoreHtml;
       return;
     }
 
+    // 다시 그려도 "더 보기"를 펼쳐 둔 상태는 유지한다
+    const moreWasOpen = !!(wrap.querySelector('.rec-more') || {}).open;
+
     const sets = fridgeSets();
-    const list = state.recipes.map((r) => ({ r, missing: missingOf(r, sets) }));
-    const can = list.filter((x) => !x.missing.length).sort(byRecipeName);
+    const list = recipes.map((r) => ({ r, missing: missingOf(r, sets) }));
+    const can = list.filter((x) => !x.missing.length).sort(byRecipeOrder);
     const need = list.filter((x) => x.missing.length)
-      .sort((a, b) => a.missing.length - b.missing.length || byRecipeName(a, b));
+      .sort((a, b) => a.missing.length - b.missing.length || byRecipeOrder(a, b));
+    const needShown = need.filter((x) => !x.r.builtin || x.missing.length < FOLD_MISSING);
+    const needFolded = need.filter((x) => x.r.builtin && x.missing.length >= FOLD_MISSING);
 
     const card = (x, cls) => {
       const sub = cls === 'can'
         ? `<span class="rec-sub">주재료: ${recipeMains(x.r).map((m) => esc(m.name)).join(', ')}</span>`
         : `<span class="rec-sub missing">🛒 부족한 재료: ${x.missing.map((m) => esc(missingLabel(m, sets))).join(', ')}</span>`;
+      const tag = x.r.builtin ? '<span class="tag-builtin">기본</span>' : '';
       return `<button type="button" class="rec-card ${cls}" data-recipe="${esc(x.r.id)}">
-          <span class="rec-name">${esc(x.r.name)}</span>${sub}
+          <span class="rec-name">${esc(x.r.name)}${tag}</span>${sub}
         </button>`;
     };
 
@@ -1008,23 +1358,31 @@
     html += '</section>';
     if (need.length) {
       html += `<section class="rec-group"><h3 class="need">🛒 재료가 더 필요해요 (${need.length})</h3>`;
-      html += need.map((x) => card(x, 'need')).join('');
+      html += needShown.map((x) => card(x, 'need')).join('');
+      if (needFolded.length) {
+        html += `<details class="rec-more"${moreWasOpen ? ' open' : ''}>
+            <summary>재료가 ${FOLD_MISSING}개 이상 더 필요한 기본 레시피 ${needFolded.length}개 더 보기</summary>
+            ${needFolded.map((x) => card(x, 'need')).join('')}
+          </details>`;
+      }
       html += '</section>';
     }
-    wrap.innerHTML = html;
+    wrap.innerHTML = html + restoreHtml;
   }
 
-  // 자동완성 목록: 주재료는 냉장고 재료와 다른 레시피의 주재료 이름, 양념은 흔한 양념 + 쓴 적 있는 양념
+  // 자동완성 목록: 주재료는 냉장고 재료와 모든 레시피의 주재료 이름, 양념은 흔한 양념 + 쓴 적 있는 양념
+  // (재료 입력 칸에도 같은 목록을 붙여, 냉장고 재료 이름이 레시피와 맞춰지게 한다)
   function renderDatalists() {
     const uniq = (arr) => [...new Map(arr.filter(Boolean).map((n) => [norm(n), n])).values()]
       .sort((a, b) => a.localeCompare(b, 'ko'));
+    const recipes = [...state.recipes, ...BUILTIN_RECIPES];
     const mains = uniq([
       ...state.ingredients.map((i) => i.name),
-      ...state.recipes.flatMap((r) => recipeMains(r).map((m) => m.name))
+      ...recipes.flatMap((r) => recipeMains(r).map((m) => m.name))
     ]);
     const seasonings = uniq([
       ...COMMON_SEASONINGS,
-      ...state.recipes.flatMap((r) => (Array.isArray(r.seasonings) ? r.seasonings : []).map((s) => s.name))
+      ...recipes.flatMap((r) => (Array.isArray(r.seasonings) ? r.seasonings : []).map((s) => s.name))
     ]);
     $('#ingredientNames').innerHTML = mains.map((n) => `<option value="${esc(n)}"></option>`).join('');
     $('#seasoningNames').innerHTML = seasonings.map((n) => `<option value="${esc(n)}"></option>`).join('');
@@ -1236,9 +1594,10 @@
 
   function openRecipeDialog(id) {
     editingRecipeId = id || null;
-    const r = editingRecipeId ? state.recipes.find((x) => x.id === editingRecipeId) : null;
+    const r = editingRecipeId ? findRecipe(editingRecipeId) : null;
 
-    $('#recipeDialogTitle').textContent = r ? '레시피 수정' : '레시피 추가';
+    $('#recipeDialogTitle').textContent = !r ? '레시피 추가'
+      : r.builtin ? '기본 레시피를 내 레시피로 고치기' : '레시피 수정';
     $('#recError').textContent = '';
 
     fillForm({
@@ -1348,7 +1707,8 @@
       .filter(Boolean);
 
     // 수정 창을 연 사이 다른 탭에서 이 레시피를 지운 경우
-    if (editingRecipeId && !state.recipes.some((r) => r.id === editingRecipeId)) {
+    const target = editingRecipeId ? findRecipe(editingRecipeId) : null;
+    if (editingRecipeId && !target) {
       finishRecipeDialog();
       alert('다른 창에서 이미 삭제된 레시피라 수정할 수 없어요.');
       return;
@@ -1356,8 +1716,11 @@
 
     const data = { name, mains: mains.list, seasonings: seasonings.list, steps };
     const saved = commit(() => {
-      if (editingRecipeId) {
-        Object.assign(state.recipes.find((r) => r.id === editingRecipeId), data);
+      if (target && target.builtin) {
+        // 기본 레시피는 그대로 두고, 고친 내용을 내 레시피로 저장한다 (기본 레시피는 목록에서 빠진다)
+        state.recipes.push({ id: newId(), fromBuiltin: target.id, ...data });
+      } else if (target) {
+        Object.assign(state.recipes.find((r) => r.id === target.id), data);
       } else {
         state.recipes.push({ id: newId(), ...data });
       }
@@ -1366,7 +1729,8 @@
     if (saved) {
       finishRecipeDialog();
       renderAll();
-      toast(editingRecipeId ? `‘${name}’ 레시피를 수정했어요` : `‘${name}’ 레시피를 등록했어요`);
+      toast(!target ? `‘${name}’ 레시피를 등록했어요`
+        : target.builtin ? `‘${name}’을(를) 내 레시피로 저장했어요` : `‘${name}’ 레시피를 수정했어요`);
     }
   });
 
@@ -1377,10 +1741,10 @@
   function fillRecipeView(r) {
     const sets = fridgeSets();
     const missing = missingOf(r, sets);
-    const missingKeys = new Set(missing.map((m) => norm(m.name)));
+    const missingKeys = new Set(missing.map((m) => canon(m.name)));
     const amt = (a) => (a ? `<span class="amt">${esc(a)}</span>` : '');
 
-    const mainsHtml = recipeMains(r).map((m) => (missingKeys.has(norm(m.name))
+    const mainsHtml = recipeMains(r).map((m) => (missingKeys.has(canon(m.name))
       ? `<li><span class="miss">🛒 ${esc(missingLabel(m, sets))}</span>${amt(m.amount)}</li>`
       : `<li>✅ ${esc(m.name)}${amt(m.amount)}</li>`)).join('');
     const seasonings = Array.isArray(r.seasonings) ? r.seasonings : [];
@@ -1395,8 +1759,14 @@
       ? `<p class="view-status need">🛒 부족한 재료: ${missing.map((m) => esc(missingLabel(m, sets))).join(', ')}</p>`
       : '<p class="view-status can">✅ 지금 냉장고 재료로 만들 수 있어요</p>';
 
+    const actions = r.builtin
+      ? `<button class="btn btn-plain" type="button" data-view="edit" title="고친 내용은 내 레시피로 저장돼요">내 레시피로 고치기</button>
+         <button class="btn btn-plain" type="button" data-view="hide">추천에서 숨기기</button>`
+      : `<button class="btn btn-plain" type="button" data-view="edit">수정</button>
+         <button class="btn btn-danger" type="button" data-view="delete">레시피 삭제</button>`;
+
     $('#viewBody').innerHTML = `
-      <h2>${esc(r.name)}</h2>
+      <h2>${esc(r.name)}${r.builtin ? '<span class="tag-builtin big">기본 레시피</span>' : ''}</h2>
       ${status}
       <div class="view-cols">
         <section><h3>주재료</h3><ul>${mainsHtml}</ul></section>
@@ -1404,14 +1774,18 @@
       </div>
       <section class="view-steps"><h3>조리 순서</h3>${stepsHtml}</section>
       <div class="view-actions">
-        <button class="btn btn-plain" type="button" data-view="edit">수정</button>
-        <button class="btn btn-danger" type="button" data-view="delete">레시피 삭제</button>
+        ${actions}
         <button class="btn btn-primary" type="button" data-view="close">닫기</button>
       </div>`;
   }
 
+  // 지금 추천 목록에 보이는 레시피만 연다 (숨긴 기본 레시피는 제외)
+  function findVisibleRecipe(id) {
+    return allRecipes().find((x) => x.id === id) || null;
+  }
+
   function openRecipeView(id) {
-    const r = state.recipes.find((x) => x.id === id);
+    const r = findVisibleRecipe(id);
     if (!r) return;
     viewingId = id;
     fillRecipeView(r);
@@ -1423,20 +1797,29 @@
   // 보고 있는 사이 재료나 레시피가 바뀌면 내용을 새로 그린다
   function refreshRecipeView() {
     if (!viewDialog.open) return;
-    const r = state.recipes.find((x) => x.id === viewingId);
+    const r = findVisibleRecipe(viewingId);
     if (r) fillRecipeView(r);
     else viewDialog.close();
   }
 
-  $('#recommendList').addEventListener('click', (e) => {
+  $('#recommendList').addEventListener('click', async (e) => {
     const card = e.target.closest('[data-recipe]');
-    if (card) openRecipeView(card.dataset.recipe);
+    if (card) {
+      openRecipeView(card.dataset.recipe);
+    } else if (e.target.closest('#restoreBuiltins')) {
+      const ok = await askConfirm('숨긴 기본 레시피를 모두 다시 추천 목록에 보이게 할까요?', '다시 보이기');
+      if (!ok) return;
+      if (commit(() => { state.hiddenBuiltins = []; })) {
+        renderAll();
+        toast('숨긴 기본 레시피를 다시 보이게 했어요');
+      }
+    }
   });
 
   $('#viewBody').addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-view]');
     if (!btn) return;
-    const r = state.recipes.find((x) => x.id === viewingId);
+    const r = findVisibleRecipe(viewingId);
     const action = btn.dataset.view;
 
     if (action === 'close' || !r) {
@@ -1444,11 +1827,21 @@
     } else if (action === 'edit') {
       viewDialog.close();
       openRecipeDialog(r.id);
+    } else if (action === 'hide') {
+      const ok = await askConfirm(`‘${r.name}’ 기본 레시피를 추천에서 숨길까요?\n추천 목록 아래 ‘다시 보이기’로 언제든 되살릴 수 있어요.`, '숨기기');
+      if (!ok) return;
+      if (commit(() => { state.hiddenBuiltins.push(r.id); })) {
+        viewDialog.close();
+        renderAll();
+        toast(`‘${r.name}’ 기본 레시피를 숨겼어요`);
+      }
     } else if (action === 'delete') {
       const ok = await askConfirm(`‘${r.name}’ 레시피를 지울까요?\n지운 레시피는 되돌릴 수 없어요.`, '지우기');
       if (!ok) return;
       const saved = commit(() => {
         state.recipes = state.recipes.filter((x) => x.id !== r.id);
+        // 기본 레시피를 고쳐 만든 레시피를 지우면, 원래 기본 레시피도 다시 나오지 않게 숨긴다
+        if (r.fromBuiltin && !state.hiddenBuiltins.includes(r.fromBuiltin)) state.hiddenBuiltins.push(r.fromBuiltin);
       });
       if (saved) {
         viewDialog.close();
@@ -1529,7 +1922,8 @@
       version: 1,
       exportedAt: new Date().toISOString(),
       ingredients: state.ingredients,
-      recipes: state.recipes
+      recipes: state.recipes,
+      hiddenBuiltins: state.hiddenBuiltins
     };
   }
 
@@ -1617,6 +2011,7 @@
     const saved = commit(() => {
       state.ingredients = data.ingredients;
       state.recipes = data.recipes;
+      state.hiddenBuiltins = data.hiddenBuiltins;
     });
     if (saved) {
       setLS(LAST_BACKUP_KEY, String(Date.now())); // 불러온 내용은 백업 파일에 이미 있다
