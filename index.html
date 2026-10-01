@@ -22,6 +22,7 @@
     --soon: #f2c200;
     --soon-bg: #fff8dc;
     --soon-text: #6b5000;
+    --need-text: #8a5a00;
     --shadow: 0 2px 10px rgba(31, 42, 36, 0.08);
     --radius: 14px;
   }
@@ -197,6 +198,44 @@
   .legend .soon::before { background: var(--soon); }
   .legend .expired::before { background: var(--danger); }
 
+  /* ---------- 추천 요리 ---------- */
+  .rec-group + .rec-group { margin-top: 22px; }
+  .rec-group h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+  }
+  .rec-group h3.can { color: var(--ok-text); }
+  .rec-group h3.need { color: var(--need-text); }
+  .rec-none {
+    color: var(--muted);
+    margin: 0;
+    font-size: 15px;
+  }
+  .rec-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .rec-card + .rec-card { margin-top: 6px; }
+  .rec-card:hover { border-color: var(--primary); background: #fafcf9; }
+  .rec-card.can { border-left: 6px solid var(--ok); }
+  .rec-card.need { border-left: 6px solid var(--soon); }
+  .rec-name { display: block; font-weight: 700; font-size: 18px; }
+  .rec-sub {
+    display: block;
+    color: var(--muted);
+    font-size: 15px;
+    margin-top: 2px;
+  }
+  .rec-sub.missing { color: var(--need-text); font-weight: 700; }
+
   /* ---------- 기한 경과 경고 배너 ---------- */
   .banner-wrap {
     max-width: 1280px;
@@ -280,6 +319,28 @@
   }
   .fab:hover { background: var(--primary-dark); }
 
+  .fab-menu {
+    position: fixed;
+    right: 28px;
+    bottom: 104px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .fab-menu[hidden] { display: none; }
+  .fab-menu button {
+    background: #fff;
+    color: var(--text);
+    border: none;
+    border-radius: 999px;
+    padding: 10px 20px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(31, 42, 36, 0.25);
+  }
+  .fab-menu button:hover { background: var(--primary-soft); }
+
   /* ---------- 입력 창 ---------- */
   dialog {
     border: none;
@@ -324,6 +385,119 @@
     gap: 8px;
   }
 
+  /* ---------- 레시피 입력 창 ---------- */
+  dialog.wide { width: min(760px, calc(100vw - 32px)); }
+  /* 내용은 스크롤, 아래쪽 안내·버튼은 항상 보이게 */
+  dialog form.split {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+    padding: 0;
+  }
+  .split-body {
+    overflow: auto;
+    padding: 22px 24px 8px;
+  }
+  .split-foot {
+    border-top: 1px solid var(--line);
+    padding: 10px 24px 18px;
+    background: #fff;
+  }
+  .form-note {
+    background: var(--soon-bg);
+    color: var(--soon-text);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin: -6px 0 14px;
+    font-size: 15px;
+  }
+  .form-note[hidden] { display: none; }
+  .split-foot .form-error { margin-bottom: 8px; min-height: 0; }
+  .split-foot .form-error:empty { display: none; }
+  .field small { font-weight: 400; color: var(--muted); font-size: 14px; }
+  .rows { display: flex; flex-direction: column; gap: 6px; }
+  .row-line {
+    display: grid;
+    grid-template-columns: 1fr 170px 36px;
+    gap: 6px;
+    align-items: center;
+  }
+  .row-line.step { grid-template-columns: 30px 1fr 36px; }
+  .row-line input,
+  .row-line textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #cfd5cd;
+    border-radius: 8px;
+    font: inherit;
+    color: var(--text);
+  }
+  .row-line textarea { resize: none; min-height: 44px; overflow: hidden; }
+  .row-line input:focus,
+  .row-line textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .step-no { font-weight: 700; color: var(--primary-dark); text-align: center; }
+  .row-del {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  .row-del:hover { background: #f1f3ef; color: var(--danger); }
+  .add-row {
+    margin-top: 6px;
+    background: none;
+    border: 1px dashed #b9c2b6;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: var(--primary-dark);
+    font: inherit;
+    font-size: 15px;
+  }
+  .add-row:hover { background: var(--primary-soft); }
+
+  /* ---------- 레시피 크게 보기 ---------- */
+  dialog.view { width: min(1000px, calc(100vw - 32px)); }
+  .view-body {
+    padding: 28px 32px;
+    font-size: 21px;
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+  }
+  .view-body h2 { font-size: 34px; margin: 0 0 4px; }
+  .view-status { font-weight: 700; margin: 0 0 20px; }
+  .view-status.can { color: var(--ok-text); }
+  .view-status.need { color: var(--need-text); }
+  .view-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+  .view-body h3 {
+    font-size: 22px;
+    margin: 0 0 8px;
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--primary-soft);
+    padding-bottom: 4px;
+  }
+  .view-body ul { margin: 0; padding: 0; list-style: none; }
+  .view-body ul li { padding: 4px 0; }
+  .view-body .amt { color: var(--muted); margin-left: 8px; }
+  .view-body .miss { color: var(--need-text); font-weight: 700; }
+  .view-steps { margin-top: 26px; }
+  .view-steps ol { margin: 0; padding-left: 1.5em; }
+  .view-steps ol li { padding: 6px 0; white-space: pre-line; }
+  .view-empty { color: var(--muted); margin: 0; }
+  .view-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 28px;
+    font-size: 17px;
+  }
+
   .confirm-body { padding: 22px 24px; }
   .confirm-body p {
     margin: 0 0 20px;
@@ -359,6 +533,10 @@
     header { padding: 16px; }
     .banner-wrap { padding: 16px 16px 0; }
     .fab { right: 16px; bottom: 16px; }
+    .fab-menu { right: 16px; bottom: 92px; }
+    .row-line { grid-template-columns: 1fr 100px 32px; }
+    .view-body { padding: 20px; }
+    .view-cols { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -380,12 +558,13 @@
 </div>
 
 <main class="layout">
-  <!-- 왼쪽: 추천 요리 (3단계에서 채움) -->
+  <!-- 왼쪽: 추천 요리 -->
   <section class="panel" id="recommendPanel">
     <div class="panel-head">
       <h2>🍳 추천 요리</h2>
+      <span class="panel-sub" id="recipeCount"></span>
     </div>
-    <p class="empty">레시피 등록과 요리 추천 기능은<br>다음 단계에서 추가됩니다.</p>
+    <div id="recommendList"></div>
   </section>
 
   <!-- 오른쪽: 냉장고 재료 -->
@@ -403,7 +582,56 @@
   </section>
 </main>
 
-<button class="fab" id="fab" type="button" aria-label="재료 추가" title="재료 추가">＋</button>
+<div class="fab-menu" id="fabMenu" hidden>
+  <button type="button" id="addRecipeBtn">📖 레시피 추가</button>
+  <button type="button" id="addIngredientBtn">🥕 재료 추가</button>
+</div>
+<button class="fab" id="fab" type="button" aria-label="추가하기" title="재료 또는 레시피 추가" aria-expanded="false">＋</button>
+
+<!-- 자동완성 목록 -->
+<datalist id="ingredientNames"></datalist>
+<datalist id="seasoningNames"></datalist>
+
+<!-- 레시피 추가/수정 창 -->
+<dialog id="recipeDialog" class="wide">
+  <form id="recipeForm" class="split" novalidate>
+   <div class="split-body">
+    <h2 id="recipeDialogTitle">레시피 추가</h2>
+    <p class="form-note" id="recNote" hidden>✏️ 저장하지 않고 닫혔던 내용을 불러왔어요. 이어서 쓰거나, 취소를 눌러 버릴 수 있어요.</p>
+    <div class="field">
+      <label for="recName">요리명</label>
+      <input id="recName" type="text" maxlength="40" placeholder="예: 참치김치볶음밥" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>주재료 <small>— 냉장고 재료와 비교해요</small></label>
+      <div class="rows" id="mainRows"></div>
+      <button type="button" class="add-row" data-add="main">＋ 주재료 줄 추가</button>
+    </div>
+    <div class="field">
+      <label>기본 양념 <small>— 항상 있다고 보고 비교하지 않아요</small></label>
+      <div class="rows" id="seasonRows"></div>
+      <button type="button" class="add-row" data-add="season">＋ 양념 줄 추가</button>
+    </div>
+    <div class="field">
+      <label>조리 순서</label>
+      <div class="rows" id="stepRows"></div>
+      <button type="button" class="add-row" data-add="step">＋ 단계 추가</button>
+    </div>
+   </div>
+   <div class="split-foot">
+    <p class="form-error" id="recError"></p>
+    <div class="form-actions">
+      <button class="btn btn-plain" type="button" id="recCancel">취소</button>
+      <button class="btn btn-primary" type="submit">저장</button>
+    </div>
+   </div>
+  </form>
+</dialog>
+
+<!-- 레시피 크게 보기 -->
+<dialog id="viewDialog" class="view">
+  <div class="view-body" id="viewBody"></div>
+</dialog>
 
 <!-- 재료 추가/수정 창 -->
 <dialog id="ingredientDialog">
@@ -450,6 +678,10 @@
   ];
   const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
   const SOON_DAYS = 6; // 오늘부터 이 날수 이내로 남으면 노란색
+  const COMMON_SEASONINGS = [
+    '소금', '설탕', '간장', '진간장', '국간장', '식용유', '참기름', '들기름', '후추',
+    '다진 마늘', '고춧가루', '식초', '맛술', '물엿', '올리고당', '깨', '버터', '물'
+  ];
   // 이 범위를 벗어난 소비기한은 연도 오타일 수 있어 저장 전에 한 번 더 묻는다
   const CHECK_FUTURE_DAYS = 365 * 3;
   const CHECK_PAST_DAYS = 30;
@@ -491,7 +723,7 @@
   window.addEventListener('storage', (e) => {
     if (e.key !== STORAGE_KEY && e.key !== null) return;
     state = load();
-    renderIngredients();
+    renderAll();
   });
 
   // ---------- 도구 ----------
@@ -544,12 +776,12 @@
   }
 
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms = 1800) {
     const el = $('#toast');
     el.textContent = msg;
     el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+    toastTimer = setTimeout(() => el.classList.remove('show'), ms);
   }
 
   // ---------- 재료 목록 그리기 ----------
@@ -566,7 +798,7 @@
     $('#ingredientCount').textContent = `총 ${state.ingredients.length}개`;
 
     if (!state.ingredients.length) {
-      wrap.innerHTML = '<p class="empty">아직 등록된 재료가 없어요.<br>오른쪽 아래 <b>＋</b> 버튼을 눌러 첫 재료를 등록해 보세요.</p>';
+      wrap.innerHTML = '<p class="empty">아직 등록된 재료가 없어요.<br>오른쪽 아래 <b>＋</b> 버튼 → <b>재료 추가</b>로 첫 재료를 등록해 보세요.</p>';
       return;
     }
 
@@ -603,6 +835,95 @@
 
       wrap.appendChild(sec);
     });
+  }
+
+  // ---------- 레시피와 냉장고 비교 ----------
+  // 재료 이름 비교 규칙: 띄어쓰기와 대소문자는 무시한다 ("방울 토마토" = "방울토마토")
+  function norm(s) {
+    return String(s).replace(/\s+/g, '').toLowerCase();
+  }
+
+  // 기한이 남은 재료(비교에 쓰임)와 기한 지난 재료(안내용)의 이름 모음
+  function fridgeSets() {
+    const fresh = new Set();
+    const expired = new Set();
+    state.ingredients.forEach((i) => (daysLeft(i.expiry) < 0 ? expired : fresh).add(norm(i.name)));
+    return { fresh, expired };
+  }
+
+  function recipeMains(r) {
+    return Array.isArray(r.mains) ? r.mains : [];
+  }
+
+  function missingOf(r, sets) {
+    return recipeMains(r).filter((m) => !sets.fresh.has(norm(m.name)));
+  }
+
+  // 냉장고에 있지만 기한이 지나 쓸 수 없는 재료는 그렇다고 알려준다
+  function missingLabel(m, sets) {
+    return sets.expired.has(norm(m.name)) ? `${m.name}(기한 지남)` : m.name;
+  }
+
+  function byRecipeName(a, b) {
+    return a.r.name.localeCompare(b.r.name, 'ko');
+  }
+
+  function renderRecipes() {
+    const wrap = $('#recommendList');
+    $('#recipeCount').textContent = `레시피 ${state.recipes.length}개`;
+
+    if (!state.recipes.length) {
+      wrap.innerHTML = '<p class="empty">아직 등록된 레시피가 없어요.<br>오른쪽 아래 <b>＋</b> 버튼 → <b>레시피 추가</b>로 첫 레시피를 등록해 보세요.</p>';
+      return;
+    }
+
+    const sets = fridgeSets();
+    const list = state.recipes.map((r) => ({ r, missing: missingOf(r, sets) }));
+    const can = list.filter((x) => !x.missing.length).sort(byRecipeName);
+    const need = list.filter((x) => x.missing.length)
+      .sort((a, b) => a.missing.length - b.missing.length || byRecipeName(a, b));
+
+    const card = (x, cls) => {
+      const sub = cls === 'can'
+        ? `<span class="rec-sub">주재료: ${recipeMains(x.r).map((m) => esc(m.name)).join(', ')}</span>`
+        : `<span class="rec-sub missing">🛒 부족한 재료: ${x.missing.map((m) => esc(missingLabel(m, sets))).join(', ')}</span>`;
+      return `<button type="button" class="rec-card ${cls}" data-recipe="${esc(x.r.id)}">
+          <span class="rec-name">${esc(x.r.name)}</span>${sub}
+        </button>`;
+    };
+
+    let html = `<section class="rec-group"><h3 class="can">✅ 지금 바로 만들 수 있어요 (${can.length})</h3>`;
+    html += can.length ? can.map((x) => card(x, 'can')).join('') : '<p class="rec-none">아직 없어요. 아래 요리의 부족한 재료를 확인해 보세요.</p>';
+    html += '</section>';
+    if (need.length) {
+      html += `<section class="rec-group"><h3 class="need">🛒 재료가 더 필요해요 (${need.length})</h3>`;
+      html += need.map((x) => card(x, 'need')).join('');
+      html += '</section>';
+    }
+    wrap.innerHTML = html;
+  }
+
+  // 자동완성 목록: 주재료는 냉장고 재료와 다른 레시피의 주재료 이름, 양념은 흔한 양념 + 쓴 적 있는 양념
+  function renderDatalists() {
+    const uniq = (arr) => [...new Map(arr.filter(Boolean).map((n) => [norm(n), n])).values()]
+      .sort((a, b) => a.localeCompare(b, 'ko'));
+    const mains = uniq([
+      ...state.ingredients.map((i) => i.name),
+      ...state.recipes.flatMap((r) => recipeMains(r).map((m) => m.name))
+    ]);
+    const seasonings = uniq([
+      ...COMMON_SEASONINGS,
+      ...state.recipes.flatMap((r) => (Array.isArray(r.seasonings) ? r.seasonings : []).map((s) => s.name))
+    ]);
+    $('#ingredientNames').innerHTML = mains.map((n) => `<option value="${esc(n)}"></option>`).join('');
+    $('#seasoningNames').innerHTML = seasonings.map((n) => `<option value="${esc(n)}"></option>`).join('');
+  }
+
+  function renderAll() {
+    renderIngredients();
+    renderRecipes();
+    renderDatalists();
+    refreshRecipeView();
   }
 
   // ---------- 재료 추가/수정 창 ----------
@@ -662,13 +983,368 @@
 
     if (saved) {
       dialog.close();
-      renderIngredients();
+      renderAll();
       toast(editingId ? `‘${name}’ 수정했어요` : `‘${name}’ 등록했어요`);
     }
   });
 
   $('#ingCancel').addEventListener('click', () => dialog.close());
-  $('#fab').addEventListener('click', () => openIngredientDialog());
+
+  // ---------- ＋ 버튼 메뉴 ----------
+  const fabMenu = $('#fabMenu');
+
+  function setFabMenu(open) {
+    fabMenu.hidden = !open;
+    $('#fab').setAttribute('aria-expanded', String(open));
+  }
+
+  $('#fab').addEventListener('click', () => setFabMenu(fabMenu.hidden));
+  $('#addIngredientBtn').addEventListener('click', () => { setFabMenu(false); openIngredientDialog(); });
+  $('#addRecipeBtn').addEventListener('click', () => { setFabMenu(false); openRecipeDialog(); });
+  document.addEventListener('click', (e) => {
+    if (!fabMenu.hidden && !e.target.closest('#fabMenu, #fab')) setFabMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !fabMenu.hidden) setFabMenu(false);
+  });
+
+  // ---------- 레시피 추가/수정 창 ----------
+  const recipeDialog = $('#recipeDialog');
+  let editingRecipeId = null;
+
+  const ROW_HOLDERS = { main: '#mainRows', season: '#seasonRows', step: '#stepRows' };
+
+  function cleanText(s) {
+    return String(s).trim().replace(/\s+/g, ' ');
+  }
+
+  function addRow(kind, first = '', second = '') {
+    const div = document.createElement('div');
+    if (kind === 'step') {
+      div.className = 'row-line step';
+      div.innerHTML = `<span class="step-no"></span>
+        <textarea rows="1" maxlength="300" placeholder="예: 김치를 잘게 썬다"></textarea>
+        <button type="button" class="row-del" aria-label="이 단계 지우기" title="이 단계 지우기">✕</button>`;
+      const ta = div.querySelector('textarea');
+      ta.value = first;
+      ta.addEventListener('input', () => autosize(ta));
+    } else {
+      const isMain = kind === 'main';
+      div.className = 'row-line';
+      div.innerHTML = `<input type="text" maxlength="30" autocomplete="off"
+          list="${isMain ? 'ingredientNames' : 'seasoningNames'}"
+          placeholder="${isMain ? '재료명 (예: 김치)' : '양념명 (예: 식용유)'}" aria-label="${isMain ? '주재료 이름' : '양념 이름'}">
+        <input type="text" maxlength="20" placeholder="분량 (예: 1컵)" aria-label="분량">
+        <button type="button" class="row-del" aria-label="이 줄 지우기" title="이 줄 지우기">✕</button>`;
+      const [nameInput, amountInput] = div.querySelectorAll('input');
+      nameInput.value = first;
+      amountInput.value = second;
+    }
+    $(ROW_HOLDERS[kind]).appendChild(div);
+    renumberSteps();
+    return div;
+  }
+
+  // 조리 순서 칸이 내용 길이에 맞춰 늘어나게 한다
+  function autosize(ta) {
+    ta.style.height = 'auto';
+    ta.style.height = ta.scrollHeight + 2 + 'px';
+  }
+
+  // 입력 창의 내용을 그대로 읽는다 (완전히 빈 줄은 뺀다)
+  function readForm() {
+    const pairs = (kind) => [...$(ROW_HOLDERS[kind]).querySelectorAll('.row-line')]
+      .map((row) => [...row.querySelectorAll('input')].map((i) => i.value))
+      .filter(([n, a]) => n.trim() || a.trim());
+    return {
+      name: $('#recName').value,
+      mains: pairs('main'),
+      seasonings: pairs('season'),
+      steps: [...$('#stepRows').querySelectorAll('textarea')].map((t) => t.value).filter((v) => v.trim())
+    };
+  }
+
+  // 입력 창을 주어진 내용으로 채우고, 빈 줄을 미리 몇 개 둔다
+  function fillForm(d) {
+    $('#recName').value = d.name;
+    Object.values(ROW_HOLDERS).forEach((sel) => { $(sel).innerHTML = ''; });
+    d.mains.forEach(([n, a]) => addRow('main', n, a));
+    d.seasonings.forEach(([n, a]) => addRow('season', n, a));
+    d.steps.forEach((s) => addRow('step', s));
+    for (let i = d.mains.length; i < 3; i++) addRow('main');
+    for (let i = d.seasonings.length; i < 2; i++) addRow('season');
+    for (let i = d.steps.length; i < 3; i++) addRow('step');
+  }
+
+  // 창을 열 때와 비교해 바뀐 게 있는지 판단하는 데 쓴다
+  function recipeDraft() {
+    return JSON.stringify(readForm());
+  }
+
+  // ---------- 작성 중인 레시피 임시 저장 ----------
+  // 어떤 이유로 창이 저장 없이 닫혀도(실수로 새로고침 포함) 다음에 열 때 이어 쓸 수 있게 한다
+  const DRAFT_KEY = 'fridgeFairy.recipeDraft';
+
+  function loadDraft() {
+    try { return JSON.parse(localStorage.getItem(DRAFT_KEY)); } catch (e) { return null; }
+  }
+
+  // 지금 열린 창(새 레시피 또는 수정 중인 그 레시피)의 임시 저장만 지운다
+  function clearDraft() {
+    const draft = loadDraft();
+    if (!draft || draft.target !== editingRecipeId) return;
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* 무시 */ }
+  }
+
+  function syncDraft() {
+    if (!recipeDialog.open) return;
+    if (recipeDraft() === recipeSnapshot) { clearDraft(); return; }
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ target: editingRecipeId, data: readForm() }));
+    } catch (e) { /* 임시 저장은 실패해도 괜찮다 */ }
+  }
+
+  function renumberSteps() {
+    $('#stepRows').querySelectorAll('.step-no').forEach((el, i) => { el.textContent = `${i + 1}.`; });
+  }
+
+  // 이름·분량 줄을 읽는다. 둘 다 빈 줄은 건너뛰고, 분량만 있는 줄은 오류로 알린다.
+  function readPairs(kind) {
+    const list = [];
+    let orphan = false;
+    $(ROW_HOLDERS[kind]).querySelectorAll('.row-line').forEach((row) => {
+      const [nameInput, amountInput] = row.querySelectorAll('input');
+      const name = cleanText(nameInput.value);
+      const amount = cleanText(amountInput.value);
+      if (name) list.push({ name, amount });
+      else if (amount) orphan = true;
+    });
+    return { list, orphan };
+  }
+
+  function openRecipeDialog(id) {
+    editingRecipeId = id || null;
+    const r = editingRecipeId ? state.recipes.find((x) => x.id === editingRecipeId) : null;
+
+    $('#recipeDialogTitle').textContent = r ? '레시피 수정' : '레시피 추가';
+    $('#recError').textContent = '';
+
+    fillForm({
+      name: r ? r.name : '',
+      mains: r ? recipeMains(r).map((m) => [m.name, m.amount]) : [],
+      seasonings: r && Array.isArray(r.seasonings) ? r.seasonings.map((s) => [s.name, s.amount]) : [],
+      steps: r && Array.isArray(r.steps) ? r.steps : []
+    });
+    recipeSnapshot = recipeDraft();
+
+    // 같은 레시피(또는 새 레시피)를 쓰다가 저장 없이 닫힌 적이 있으면 이어서 쓰게 불러온다
+    const draft = loadDraft();
+    let restored = false;
+    if (draft && draft.target === editingRecipeId && draft.data && JSON.stringify(draft.data) !== recipeSnapshot) {
+      try {
+        fillForm(draft.data);
+        restored = true;
+      } catch (e) {
+        clearDraft();
+        fillForm(JSON.parse(recipeSnapshot));
+      }
+    }
+
+    $('#recNote').hidden = !restored;
+    recipeDialog.showModal();
+    $('#stepRows').querySelectorAll('textarea').forEach(autosize);
+    $('#recipeForm .split-body').scrollTop = 0;
+    $('#recName').focus();
+  }
+
+  // ---------- 작성 중인 레시피를 실수로 닫지 않게 ----------
+  let recipeSnapshot = '';
+
+  // 저장했거나 버리기로 한 경우: 임시 저장도 지우고 닫는다
+  function finishRecipeDialog() {
+    clearDraft();
+    recipeDialog.close();
+  }
+
+  async function requestCloseRecipe() {
+    if (confirmDialog.open) return;
+    if (recipeDraft() !== recipeSnapshot) {
+      const ok = await askConfirm('작성 중인 내용이 아직 저장되지 않았어요.\n저장하지 않고 닫을까요?', '저장 안 하고 닫기');
+      if (!ok) return;
+    }
+    finishRecipeDialog();
+  }
+
+  $('#recCancel').addEventListener('click', requestCloseRecipe);
+  // Esc: 바뀐 내용이 있으면 바로 닫지 않고 물어본다.
+  recipeDialog.addEventListener('cancel', (e) => {
+    if (recipeDraft() === recipeSnapshot) return;
+    if (!e.cancelable) {
+      // Esc를 연달아 누르면 브라우저가 막을 수 없게 창을 닫는다. 내용은 임시 저장해 두고 알려준다.
+      syncDraft();
+      setTimeout(() => toast(editingRecipeId
+        ? '고치던 내용은 임시 저장했어요. 이 레시피의 ‘수정’을 다시 누르면 이어서 쓸 수 있어요.'
+        : '쓰던 내용은 임시 저장했어요. ‘레시피 추가’를 다시 누르면 이어서 쓸 수 있어요.', 4500), 0);
+      return;
+    }
+    e.preventDefault();
+    requestCloseRecipe();
+  });
+  $('#recipeForm').addEventListener('input', syncDraft);
+
+  $('#recipeForm').addEventListener('click', (e) => {
+    const add = e.target.closest('[data-add]');
+    const del = e.target.closest('.row-del');
+    if (add) {
+      const row = addRow(add.dataset.add);
+      row.querySelector('input, textarea').focus();
+    } else if (del) {
+      const row = del.closest('.row-line');
+      const holder = row.parentElement;
+      row.remove();
+      // 줄이 하나도 없으면 빈 줄 하나를 남겨 둔다
+      if (!holder.children.length) {
+        addRow(Object.keys(ROW_HOLDERS).find((k) => $(ROW_HOLDERS[k]) === holder));
+      }
+      renumberSteps();
+      syncDraft();
+    }
+  });
+
+  // 줄 입력 중 Enter를 눌러도 레시피가 덜 쓴 채로 저장되지 않게 한다
+  $('#recipeForm').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault();
+  });
+
+  $('#recipeForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = (msg, el) => { $('#recError').textContent = msg; if (el) el.focus(); };
+
+    const name = cleanText($('#recName').value);
+    if (!name) return err('요리명을 입력해 주세요.', $('#recName'));
+
+    const mains = readPairs('main');
+    const seasonings = readPairs('season');
+    if (mains.orphan || seasonings.orphan) {
+      return err('분량만 적히고 이름이 빈 줄이 있어요. 이름을 적거나 ✕로 줄을 지워 주세요.');
+    }
+    if (!mains.list.length) {
+      return err('주재료를 하나 이상 적어 주세요.', $('#mainRows input'));
+    }
+    const steps = [...$('#stepRows').querySelectorAll('textarea')]
+      .map((t) => t.value.trim())
+      .filter(Boolean);
+
+    // 수정 창을 연 사이 다른 탭에서 이 레시피를 지운 경우
+    if (editingRecipeId && !state.recipes.some((r) => r.id === editingRecipeId)) {
+      finishRecipeDialog();
+      alert('다른 창에서 이미 삭제된 레시피라 수정할 수 없어요.');
+      return;
+    }
+
+    const data = { name, mains: mains.list, seasonings: seasonings.list, steps };
+    const saved = commit(() => {
+      if (editingRecipeId) {
+        Object.assign(state.recipes.find((r) => r.id === editingRecipeId), data);
+      } else {
+        state.recipes.push({ id: newId(), ...data });
+      }
+    });
+
+    if (saved) {
+      finishRecipeDialog();
+      renderAll();
+      toast(editingRecipeId ? `‘${name}’ 레시피를 수정했어요` : `‘${name}’ 레시피를 등록했어요`);
+    }
+  });
+
+  // ---------- 레시피 크게 보기 ----------
+  const viewDialog = $('#viewDialog');
+  let viewingId = null;
+
+  function fillRecipeView(r) {
+    const sets = fridgeSets();
+    const missing = missingOf(r, sets);
+    const missingKeys = new Set(missing.map((m) => norm(m.name)));
+    const amt = (a) => (a ? `<span class="amt">${esc(a)}</span>` : '');
+
+    const mainsHtml = recipeMains(r).map((m) => (missingKeys.has(norm(m.name))
+      ? `<li><span class="miss">🛒 ${esc(missingLabel(m, sets))}</span>${amt(m.amount)}</li>`
+      : `<li>✅ ${esc(m.name)}${amt(m.amount)}</li>`)).join('');
+    const seasonings = Array.isArray(r.seasonings) ? r.seasonings : [];
+    const seasonHtml = seasonings.length
+      ? `<ul>${seasonings.map((s) => `<li>• ${esc(s.name)}${amt(s.amount)}</li>`).join('')}</ul>`
+      : '<p class="view-empty">없음</p>';
+    const steps = Array.isArray(r.steps) ? r.steps : [];
+    const stepsHtml = steps.length
+      ? `<ol>${steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>`
+      : '<p class="view-empty">조리 순서가 아직 없어요. ‘수정’에서 추가할 수 있어요.</p>';
+    const status = missing.length
+      ? `<p class="view-status need">🛒 부족한 재료: ${missing.map((m) => esc(missingLabel(m, sets))).join(', ')}</p>`
+      : '<p class="view-status can">✅ 지금 냉장고 재료로 만들 수 있어요</p>';
+
+    $('#viewBody').innerHTML = `
+      <h2>${esc(r.name)}</h2>
+      ${status}
+      <div class="view-cols">
+        <section><h3>주재료</h3><ul>${mainsHtml}</ul></section>
+        <section><h3>기본 양념</h3>${seasonHtml}</section>
+      </div>
+      <section class="view-steps"><h3>조리 순서</h3>${stepsHtml}</section>
+      <div class="view-actions">
+        <button class="btn btn-plain" type="button" data-view="edit">수정</button>
+        <button class="btn btn-danger" type="button" data-view="delete">레시피 삭제</button>
+        <button class="btn btn-primary" type="button" data-view="close">닫기</button>
+      </div>`;
+  }
+
+  function openRecipeView(id) {
+    const r = state.recipes.find((x) => x.id === id);
+    if (!r) return;
+    viewingId = id;
+    fillRecipeView(r);
+    viewDialog.showModal();
+    viewDialog.querySelector('[data-view="close"]').focus();
+    $('#viewBody').scrollTop = 0;
+  }
+
+  // 보고 있는 사이 재료나 레시피가 바뀌면 내용을 새로 그린다
+  function refreshRecipeView() {
+    if (!viewDialog.open) return;
+    const r = state.recipes.find((x) => x.id === viewingId);
+    if (r) fillRecipeView(r);
+    else viewDialog.close();
+  }
+
+  $('#recommendList').addEventListener('click', (e) => {
+    const card = e.target.closest('[data-recipe]');
+    if (card) openRecipeView(card.dataset.recipe);
+  });
+
+  $('#viewBody').addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-view]');
+    if (!btn) return;
+    const r = state.recipes.find((x) => x.id === viewingId);
+    const action = btn.dataset.view;
+
+    if (action === 'close' || !r) {
+      viewDialog.close();
+    } else if (action === 'edit') {
+      viewDialog.close();
+      openRecipeDialog(r.id);
+    } else if (action === 'delete') {
+      const ok = await askConfirm(`‘${r.name}’ 레시피를 지울까요?\n지운 레시피는 되돌릴 수 없어요.`, '지우기');
+      if (!ok) return;
+      const saved = commit(() => {
+        state.recipes = state.recipes.filter((x) => x.id !== r.id);
+      });
+      if (saved) {
+        viewDialog.close();
+        renderAll();
+        toast(`‘${r.name}’ 레시피를 지웠어요`);
+      }
+    }
+  });
 
   // ---------- 확인 창 ----------
   const confirmDialog = $('#confirmDialog');
@@ -720,7 +1396,7 @@
         state.ingredients = state.ingredients.filter((i) => i.id !== item.id);
       });
       if (saved) {
-        renderIngredients();
+        renderAll();
         toast(expired ? `‘${item.name}’ 폐기했어요` : `‘${item.name}’ 지웠어요`);
       }
     }
@@ -732,7 +1408,7 @@
     const t = todayStr();
     if (t !== lastDay) {
       lastDay = t;
-      renderIngredients();
+      renderAll();
     }
   }
   setInterval(refreshIfDayChanged, 60000);
@@ -740,7 +1416,7 @@
     if (!document.hidden) refreshIfDayChanged();
   });
 
-  renderIngredients();
+  renderAll();
 </script>
 </body>
 </html>
