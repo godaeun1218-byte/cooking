@@ -49,7 +49,23 @@
   header .inner {
     max-width: 1280px;
     margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 24px;
   }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-head {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-head:hover { background: rgba(255, 255, 255, 0.26); }
   header h1 {
     margin: 0;
     font-size: 26px;
@@ -236,13 +252,32 @@
   }
   .rec-sub.missing { color: var(--need-text); font-weight: 700; }
 
-  /* ---------- 기한 경과 경고 배너 ---------- */
-  .banner-wrap {
+  /* ---------- 상단 알림(백업 알림, 기한 경과 경고) ---------- */
+  .banners {
     max-width: 1280px;
     margin: 0 auto;
     padding: 24px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
-  .banner-wrap[hidden] { display: none; }
+  .banners:not(:has(> :not([hidden]))) { display: none; }
+  .banner[hidden],
+  .info-banner[hidden] { display: none; }
+  .info-banner {
+    background: #e8f1fb;
+    color: #1d3d5c;
+    border-radius: var(--radius);
+    padding: 10px 14px 10px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    box-shadow: var(--shadow);
+  }
+  .info-actions { display: flex; gap: 6px; }
+  .btn.btn-sm { padding: 6px 14px; font-size: 15px; }
   .banner {
     background: var(--danger);
     color: #fff;
@@ -531,7 +566,7 @@
       padding: 16px 16px 110px;
     }
     header { padding: 16px; }
-    .banner-wrap { padding: 16px 16px 0; }
+    .banners { padding: 16px 16px 0; }
     .fab { right: 16px; bottom: 16px; }
     .fab-menu { right: 16px; bottom: 92px; }
     .row-line { grid-template-columns: 1fr 100px 32px; }
@@ -544,14 +579,29 @@
 
 <header>
   <div class="inner">
-    <h1>🧚 방과후 조리실 냉장고 요정</h1>
-    <p>냉장고 재료와 실습 레시피를 한눈에 관리해요. 모든 정보는 이 컴퓨터의 브라우저에만 저장됩니다.</p>
+    <div>
+      <h1>🧚 방과후 조리실 냉장고 요정</h1>
+      <p>냉장고 재료와 실습 레시피를 한눈에 관리해요. 모든 정보는 이 컴퓨터의 브라우저에만 저장됩니다.</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-head" id="exportBtn" title="재료와 레시피 전체를 파일로 내려받아요">💾 백업 저장</button>
+      <button type="button" class="btn-head" id="importBtn" title="백업 파일에서 재료와 레시피를 되살려요">📂 백업 불러오기</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
+    </div>
   </div>
 </header>
 
-<!-- 기한 지난 재료가 있을 때만 보이는 경고 -->
-<div class="banner-wrap" id="expiredBanner" hidden>
-  <div class="banner" role="alert">
+<div class="banners">
+  <!-- 백업한 지 오래되었을 때 알림 -->
+  <div class="info-banner" id="backupReminder" hidden>
+    <span id="backupReminderText"></span>
+    <span class="info-actions">
+      <button type="button" class="btn btn-primary btn-sm" id="backupNowBtn">지금 백업하기</button>
+      <button type="button" class="btn btn-plain btn-sm" id="backupSnoozeBtn">오늘은 그만 보기</button>
+    </span>
+  </div>
+  <!-- 기한 지난 재료가 있을 때만 보이는 경고 -->
+  <div class="banner" id="expiredBanner" role="alert" hidden>
     <span>⚠️ 소비기한이 지난 재료는 위생 안전을 위해 확인 후 즉시 폐기하세요.</span>
     <span class="banner-count" id="expiredCount"></span>
   </div>
@@ -685,6 +735,11 @@
   // 이 범위를 벗어난 소비기한은 연도 오타일 수 있어 저장 전에 한 번 더 묻는다
   const CHECK_FUTURE_DAYS = 365 * 3;
   const CHECK_PAST_DAYS = 30;
+  // 백업 관련
+  const LAST_BACKUP_KEY = 'fridgeFairy.lastBackup';   // 마지막으로 백업 파일을 만든 시각(ms)
+  const SNOOZE_KEY = 'fridgeFairy.backupSnooze';      // "오늘은 그만 보기"를 누른 날짜
+  const BACKUP_REMIND_DAYS = 7;
+  const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 
   const $ = (sel) => document.querySelector(sel);
 
@@ -692,13 +747,8 @@
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        return {
-          ingredients: Array.isArray(data.ingredients) ? data.ingredients : [],
-          recipes: Array.isArray(data.recipes) ? data.recipes : []
-        };
-      }
+      // 잘못된 항목이 섞여 있어도 앱이 멈추지 않게 검사해서 읽는다
+      if (raw) return sanitizeData(JSON.parse(raw)).data;
     } catch (e) { /* 읽기 실패 시 빈 상태로 시작 */ }
     return { ingredients: [], recipes: [] };
   }
@@ -721,9 +771,12 @@
 
   // 같은 앱을 다른 탭에서 바꾸면 이 탭도 최신 데이터로 다시 읽는다 (덮어쓰기 방지)
   window.addEventListener('storage', (e) => {
-    if (e.key !== STORAGE_KEY && e.key !== null) return;
-    state = load();
-    renderAll();
+    if (e.key === STORAGE_KEY || e.key === null) {
+      state = load();
+      renderAll();
+    } else if (e.key === LAST_BACKUP_KEY || e.key === SNOOZE_KEY) {
+      renderBackupReminder();
+    }
   });
 
   // ---------- 도구 ----------
@@ -734,9 +787,12 @@
   function pad(n) { return String(n).padStart(2, '0'); }
 
   // toISOString()은 UTC 기준이라 한국 시간과 날짜가 어긋날 수 있어 직접 만든다
-  function todayStr() {
-    const d = new Date();
+  function localDateStr(d) {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  function todayStr() {
+    return localDateStr(new Date());
   }
 
   function formatDate(str) {
@@ -768,6 +824,61 @@
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  // ---------- 데이터 검사 (저장된 데이터 읽기, 백업 불러오기에 함께 쓴다) ----------
+  function isValidDateStr(s) {
+    if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+    const d = parseDate(s);
+    return localDateStr(d) === s; // 2026-02-31 같은 없는 날짜를 걸러낸다
+  }
+
+  function textField(v, max) {
+    return typeof v === 'string' ? cleanText(v).slice(0, max) : '';
+  }
+
+  // 올바른 항목만 남기고, 빠진 개수를 함께 돌려준다
+  function sanitizeData(data) {
+    const out = { ingredients: [], recipes: [] };
+    let skipped = 0;
+    const ids = new Set();
+    const uniqueId = (id) => {
+      let v = typeof id === 'string' && id && !ids.has(id) ? id : newId();
+      while (ids.has(v)) v = newId();
+      ids.add(v);
+      return v;
+    };
+    const pairs = (arr) => (Array.isArray(arr) ? arr : [])
+      .filter((p) => p && typeof p === 'object')
+      .map((p) => ({ name: textField(p.name, 30), amount: textField(p.amount, 20) }))
+      .filter((p) => p.name);
+
+    const src = data && typeof data === 'object' ? data : {};
+    (Array.isArray(src.ingredients) ? src.ingredients : []).forEach((i) => {
+      const name = i && typeof i === 'object' ? textField(i.name, 30) : '';
+      if (!name || !isValidDateStr(i.expiry)) { skipped++; return; }
+      out.ingredients.push({
+        id: uniqueId(i.id),
+        name,
+        category: CATEGORIES.includes(i.category) ? i.category : '기타',
+        expiry: i.expiry
+      });
+    });
+    (Array.isArray(src.recipes) ? src.recipes : []).forEach((r) => {
+      const name = r && typeof r === 'object' ? textField(r.name, 40) : '';
+      const mains = name ? pairs(r.mains) : [];
+      if (!name || !mains.length) { skipped++; return; }
+      out.recipes.push({
+        id: uniqueId(r.id),
+        name,
+        mains,
+        seasonings: pairs(r.seasonings),
+        steps: (Array.isArray(r.steps) ? r.steps : [])
+          .filter((s) => typeof s === 'string' && s.trim())
+          .map((s) => s.trim().slice(0, 300))
+      });
+    });
+    return { data: out, skipped };
   }
 
   function byExpiry(a, b) {
@@ -924,6 +1035,7 @@
     renderRecipes();
     renderDatalists();
     refreshRecipeView();
+    renderBackupReminder();
   }
 
   // ---------- 재료 추가/수정 창 ----------
@@ -1399,6 +1511,117 @@
         renderAll();
         toast(expired ? `‘${item.name}’ 폐기했어요` : `‘${item.name}’ 지웠어요`);
       }
+    }
+  });
+
+  // ---------- 백업 저장 / 불러오기 ----------
+  function getLS(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+
+  function setLS(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) { /* 알림용이라 실패해도 괜찮다 */ }
+  }
+
+  function backupData() {
+    return {
+      app: 'fridge-fairy',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      ingredients: state.ingredients,
+      recipes: state.recipes
+    };
+  }
+
+  function downloadJson(filename, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  function exportBackup() {
+    downloadJson(`냉장고요정-백업-${todayStr()}.json`, backupData());
+    setLS(LAST_BACKUP_KEY, String(Date.now()));
+    renderBackupReminder();
+    toast(`백업 파일을 내려받았어요 (재료 ${state.ingredients.length}개, 레시피 ${state.recipes.length}개)`, 3000);
+  }
+
+  function renderBackupReminder() {
+    const hasData = state.ingredients.length > 0 || state.recipes.length > 0;
+    const last = Number(getLS(LAST_BACKUP_KEY)) || 0;
+    const days = last ? Math.floor((Date.now() - last) / 86400000) : null;
+    const show = hasData
+      && (days === null || days >= BACKUP_REMIND_DAYS)
+      && getLS(SNOOZE_KEY) !== todayStr();
+    $('#backupReminder').hidden = !show;
+    $('#backupReminderText').textContent = days === null
+      ? '💾 아직 백업 파일을 만든 적이 없어요. 기록이 지워지거나 컴퓨터를 바꿀 때를 대비해 백업해 두세요.'
+      : `💾 마지막 백업 뒤로 ${days}일이 지났어요. 새로 입력한 내용을 지키려면 백업해 두세요.`;
+  }
+
+  $('#exportBtn').addEventListener('click', exportBackup);
+  $('#backupNowBtn').addEventListener('click', exportBackup);
+  $('#backupSnoozeBtn').addEventListener('click', () => {
+    setLS(SNOOZE_KEY, todayStr());
+    renderBackupReminder();
+  });
+
+  $('#importBtn').addEventListener('click', () => $('#importFile').click());
+
+  $('#importFile').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = ''; // 같은 파일을 다시 골라도 동작하도록
+    if (!file) return;
+
+    if (file.size > MAX_IMPORT_BYTES) {
+      alert('파일이 너무 커요. 냉장고 요정에서 만든 백업 파일(.json)이 맞는지 확인해 주세요.');
+      return;
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(await file.text());
+    } catch (err) {
+      alert('파일을 읽을 수 없어요. 냉장고 요정에서 만든 백업 파일(.json)을 골라 주세요.');
+      return;
+    }
+    if (!parsed || parsed.app !== 'fridge-fairy') {
+      alert('냉장고 요정 백업 파일이 아니에요. 💾 백업 저장으로 만든 파일을 골라 주세요.');
+      return;
+    }
+
+    const { data, skipped } = sanitizeData(parsed);
+    const when = typeof parsed.exportedAt === 'string' && !Number.isNaN(Date.parse(parsed.exportedAt))
+      ? `${formatDate(localDateStr(new Date(parsed.exportedAt)))}에 만든 백업`
+      : '백업 파일';
+    const hasCurrent = state.ingredients.length > 0 || state.recipes.length > 0;
+    const lines = [
+      `${when}: 재료 ${data.ingredients.length}개, 레시피 ${data.recipes.length}개`,
+      skipped ? `(내용이 잘못된 ${skipped}개 항목은 빼고 불러와요)` : '',
+      '',
+      hasCurrent
+        ? `지금 앱의 재료 ${state.ingredients.length}개, 레시피 ${state.recipes.length}개를 이 내용으로 바꿀까요?\n바꾸기 전에 지금 내용을 백업 파일로 자동 저장해 둘게요.`
+        : '이 내용을 불러올까요?'
+    ].filter((l, i) => l || i === 2);
+    const ok = await askConfirm(lines.join('\n'), '불러오기');
+    if (!ok) return;
+
+    if (hasCurrent) {
+      downloadJson(`냉장고요정-불러오기전-자동백업-${todayStr()}.json`, backupData());
+    }
+    const saved = commit(() => {
+      state.ingredients = data.ingredients;
+      state.recipes = data.recipes;
+    });
+    if (saved) {
+      setLS(LAST_BACKUP_KEY, String(Date.now())); // 불러온 내용은 백업 파일에 이미 있다
+      renderAll();
+      toast(`불러왔어요 (재료 ${data.ingredients.length}개, 레시피 ${data.recipes.length}개)`, 3000);
     }
   });
 
